@@ -14,12 +14,12 @@ export const AssignmentPage = () => {
     "Ambulance 49",
   ]
   const boxPositions = [
-    ["Officer", "Driver", "Nozzle", "Backup", "Control", "Door"], // Engine
-    ["Officer", "Driver", "Irons", "Can", "OVM", "Roof"], // Truck
-    ["Officer", "Driver", "Rescue 1", "Rescue 2", "Rescue 3", "Rescue 4"], // Rescue
-    ["Medic", "Driver"], // Ambulance 47
-    ["Medic", "Driver"], // Ambulance 48
-    ["Medic", "Driver"], // Ambulance 49
+    ["Driver", "Officer", "Nozzle", "Backup", "Bar", "Layout"], // Engine
+    ["Driver", "Officer", "OVM", "Roof", "Bar", "Can"], // Truck
+    ["Driver", "Officer", "Safety", "Crib", "Crib", "Tool"], // Rescue
+    ["Staff", "Staff"], // Ambulance 47
+    ["Staff", "Staff"], // Ambulance 48
+    ["Staff", "Staff"], // Ambulance 49
   ]
   const boxCount = boxNames.length
 
@@ -54,17 +54,25 @@ export const AssignmentPage = () => {
             )
             const member = assignment ? getMember(assignment.member_id) : null
             return (
-              <div className="assignment-row" key={ddIdx}>
-                <span>
-                  {pos}:{" "}
+              <div className="assignment-row vertical-align" key={ddIdx}>
+                <div className="position-label left-align">{pos}</div>
+                <div
+                  className={
+                    member
+                      ? `member-selection-box rank-${
+                          member.rank?.toLowerCase() || "default"
+                        }`
+                      : "member-selection-box unassigned"
+                  }
+                >
                   {member ? (
-                    <span style={{ color: rankColors[member.rank] || "#fff" }}>
+                    <span>
                       {member.name} ({member.rank})
                     </span>
                   ) : (
-                    <span style={{ color: "#888" }}>Unassigned</span>
+                    <span>Unassigned</span>
                   )}
-                </span>
+                </div>
               </div>
             )
           })}
@@ -81,19 +89,25 @@ export const AssignmentPage = () => {
               )
               const member = assignment ? getMember(assignment.member_id) : null
               return (
-                <div className="assignment-row" key={ddIdx}>
-                  <span>
-                    {pos}:{" "}
+                <div className="assignment-row vertical-align" key={ddIdx}>
+                  <div className="position-label left-align">{pos}</div>
+                  <div
+                    className={
+                      member
+                        ? `member-selection-box rank-${
+                            member.rank?.toLowerCase() || "default"
+                          }`
+                        : "member-selection-box unassigned"
+                    }
+                  >
                     {member ? (
-                      <span
-                        style={{ color: rankColors[member.rank] || "#fff" }}
-                      >
+                      <span>
                         {member.name} ({member.rank})
                       </span>
                     ) : (
-                      <span style={{ color: "#888" }}>Unassigned</span>
+                      <span>Unassigned</span>
                     )}
-                  </span>
+                  </div>
                 </div>
               )
             })}

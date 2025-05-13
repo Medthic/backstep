@@ -4,7 +4,7 @@
   display: flex;
   gap: 2rem;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center; /* Center vertically */
   flex-wrap: wrap;
   width: 100vw;
   height: 100vh;
@@ -17,7 +17,7 @@
   flex-wrap: nowrap;
   gap: 2rem;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center; /* Center vertically */
   width: 100vw;
   height: 100vh;
   padding: 2rem 0;
@@ -26,38 +26,44 @@
 
 .ambulance-layout {
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center; /* Center vertically */
 }
 
 .assignment-box {
   background: #333;
   border-radius: 1rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  padding: 2rem 1.5rem;
-  min-width: 220px;
+  padding: 1.2rem 1.2rem;
+  min-width: 300px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 1.2rem;
+  gap: 0.7rem;
   margin-bottom: 0;
 }
 
 .ambulance-stack {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 0.7rem;
 }
 
 .ambulance-box {
-  min-width: 150px;
-  width: 150px;
-  padding: 1rem 0.75rem;
+  min-width: 220px;
+  width: 300px;
+  padding: 0.8rem 0.6rem;
   font-size: 0.85rem;
 }
 
 .ambulance-box h3 {
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  font-family: "Carbondale", sans-serif;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 0.1rem 0;
+  padding: 0;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  line-height: 1.1;
 }
 
 .ambulance-box .assignment-row {
@@ -65,11 +71,14 @@
 }
 
 .assignment-box h3 {
+  font-family: "Carbondale", sans-serif;
   color: #fff;
   text-align: center;
-  margin-bottom: 1rem;
-  font-size: 1.3rem;
+  margin: 0 0 0.1rem 0;
+  padding: 0;
+  font-size: 2rem;
   letter-spacing: 1px;
+  line-height: 1.1;
 }
 
 .assignment-row {
@@ -78,9 +87,27 @@
   gap: 0.3rem;
 }
 
+.assignment-row.vertical-align {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  margin-bottom: 0.15rem;
+}
+
 .assignment-row label {
   color: #eee;
   font-size: 1rem;
+}
+
+.position-label.left-align {
+  align-self: flex-start;
+  text-align: left;
+  color: #bfcaff;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.1rem;
 }
 
 .assignment-row select {
@@ -94,4 +121,53 @@
 
 .assignment-row select:focus {
   outline: 2px solid #646cff;
+}
+
+.member-selection-box {
+  width: 100%;
+  border-radius: 0.6rem;
+  padding: 0.15rem 0.4rem;
+  min-height: 1.2rem;
+  font-size: 1rem;
+  font-weight: 500;
+  box-sizing: border-box;
+  transition: background 0.2s, border 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  background: #333;
+  color: #fff;
+  border: 2px solid #646cff;
+}
+
+.member-selection-box.unassigned {
+  background: #222;
+  color: #888;
+  border: 1.5px solid #888;
+}
+
+@media (max-width: 700px) {
+  .assignment-grid,
+  .assignment-grid.ambulance-layout {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.7rem !important;
+    height: auto !important;
+    min-height: 100vh;
+    /* Set top padding to match nav bar height (4rem) plus a little extra for spacing */
+    padding-top: 4.5rem !important;
+    padding-bottom: 1rem !important;
+    padding-left: 0.2rem !important;
+    padding-right: 0.2rem !important;
+  }
+  .assignment-box,
+  .ambulance-box {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto 0.7rem auto !important;
+    box-sizing: border-box;
+  }
+  .ambulance-stack {
+    gap: 0.7rem !important;
+  }
 }

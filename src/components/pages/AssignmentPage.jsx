@@ -14,12 +14,12 @@ export const AssignmentPage = () => {
     "Ambulance 49",
   ]
   const boxPositions = [
-    ["Driver", "Officer", "Nozzle", "Backup", "Bar", "Layout"], // Engine
-    ["Driver", "Officer", "OVM", "Roof", "Bar", "Can"], // Truck
-    ["Driver", "Officer", "Safety", "Crib", "Crib", "Tool"], // Rescue
-    ["Staff", "Staff"], // Ambulance 47
-    ["Staff", "Staff"], // Ambulance 48
-    ["Staff", "Staff"], // Ambulance 49
+    ["CHAUFFEUR", "OFFICER", "NOZZLE", "LAYOUT", "FORCIBLE ENTRY", "BACKUP"], // Engine
+    ["CHAUFFEUR", "OFFICER", "OVM", "IRONS", "ROOF", "CAN"], // Truck
+    ["CHAUFFEUR", "OFFICER", "SAFETY", "TOOL", "CRIB", "CRIB"], // Rescue
+    ["STAFF", "STAFF"], // Ambulance 47
+    ["STAFF", "STAFF"], // Ambulance 48
+    ["STAFF", "STAFF"], // Ambulance 49
   ]
   const boxCount = boxNames.length
 

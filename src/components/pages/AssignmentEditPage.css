@@ -1,13 +1,13 @@
-/* AssignmentPage.css - styles specific to AssignmentPage and AssignmentEditPage */
+/* AssignmentEditPage.css - styles for AssignmentEditPage, matching AssignmentPage layout */
 
 .assignment-grid {
   display: flex;
   gap: 2rem;
   justify-content: center;
-  align-items: center; /* Center vertically */
+  align-items: center;
   flex-wrap: wrap;
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   padding: 2rem 0;
   box-sizing: border-box;
 }
@@ -17,20 +17,20 @@
   flex-wrap: nowrap;
   gap: 2rem;
   justify-content: center;
-  align-items: center; /* Center vertically */
+  align-items: center;
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   padding: 2rem 0;
   box-sizing: border-box;
 }
 
 .ambulance-layout {
   flex-wrap: wrap;
-  align-items: center; /* Center vertically */
+  align-items: center;
 }
 
 .assignment-box {
-  background: #b8b8b8;
+  background: #333;
   border-radius: 1rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   padding: 1.2rem 1.2rem;
@@ -55,28 +55,14 @@
   font-size: 0.85rem;
 }
 
-.ambulance-box h3 {
-  font-family: "Carbondale", sans-serif;
-  color: #fff;
-  text-align: center;
-  margin: 0 0 0.1rem 0;
-  padding: 0;
-  font-size: 2rem;
-  letter-spacing: 2px;
-  line-height: 1.1;
-}
-
-.ambulance-box .assignment-row {
-  font-size: 0.85rem;
-}
-
+.ambulance-box h3,
 .assignment-box h3 {
   font-family: "Carbondale", sans-serif;
   color: #fff;
   text-align: center;
   margin: 0 0 0.1rem 0;
   padding: 0;
-  font-size: 2.5rem;
+  font-size: 2rem;
   letter-spacing: 2px;
   line-height: 1.1;
 }
@@ -95,36 +81,18 @@
   margin-bottom: 0.15rem;
 }
 
-.assignment-row label {
-  color: #eee;
-  font-size: 1rem;
-}
-
 .position-label.left-align {
   align-self: flex-start;
   text-align: left;
   color: #f0f0f0;
   font-size: 1.5rem;
   font-weight: 400;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   margin-bottom: 0.1rem;
   font-family: "BebasNeue", "Bebas", Arial, sans-serif;
 }
 
-.assignment-row select {
-  padding: 0.4rem 0.7rem;
-  border-radius: 0.4rem;
-  border: 1px solid #888;
-  background: #222;
-  color: #fff;
-  font-size: 1rem;
-}
-
-.assignment-row select:focus {
-  outline: 2px solid #646cff;
-}
-
-.member-selection-box {
+.member-select {
   width: 100%;
   border-radius: 0.6rem;
   padding: 0.15rem 0.4rem;
@@ -132,18 +100,18 @@
   font-size: 1rem;
   font-weight: 500;
   box-sizing: border-box;
-  transition: background 0.2s, border 0.2s, color 0.2s;
-  display: flex;
-  align-items: center;
-  background: #333;
+  background: #222;
   color: #fff;
   border: 2px solid #646cff;
+  transition: border 0.2s, background 0.2s, color 0.2s;
 }
-
-.member-selection-box.unassigned {
-  background: #222;
-  color: #888;
-  border: 1.5px solid #888;
+.member-select:focus {
+  outline: 2px solid #646cff;
+  border-color: #646cff;
+}
+.member-select:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 @media (max-width: 700px) {
@@ -152,9 +120,7 @@
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 0.7rem !important;
-    height: auto !important;
     min-height: 100vh;
-    /* Set top padding to match nav bar height (4rem) plus a little extra for spacing */
     padding-top: 4.5rem !important;
     padding-bottom: 1rem !important;
     padding-left: 0.2rem !important;

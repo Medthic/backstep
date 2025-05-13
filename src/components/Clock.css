@@ -1,0 +1,24 @@
+.clock {
+  font-family: "Bebas", sans-serif;
+  color: white;
+  font-size: 3rem;
+  font-weight: normal;
+  margin-right: 0rem;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.clock::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  animation: blink 2s linear infinite;
+}

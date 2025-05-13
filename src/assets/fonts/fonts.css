@@ -1,0 +1,36 @@
+@font-face {
+  font-family: "Bebas";
+  src: url("./Bebas.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "BebasNeue";
+  src: url("./BebasNeue.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Carbondale";
+  src: url("./carbondale.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Utility classes for easy use */
+.font-bebas {
+  font-family: "Bebas", sans-serif;
+}
+
+.font-bebas-neue {
+  font-family: "BebasNeue", sans-serif;
+}
+
+.font-carbondale {
+  font-family: "Carbondale", sans-serif;
+}

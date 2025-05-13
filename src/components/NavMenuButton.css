@@ -1,0 +1,101 @@
+.nav-menu-button {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 2rem;
+  margin-left: 2rem; /* Added to match Clock's padding */
+  transition: transform 0.3s ease;
+}
+
+.nav-menu-button:focus {
+  outline: none;
+}
+
+.line {
+  width: 2rem;
+  height: 0.25rem;
+  background: white;
+  border-radius: 10px;
+  transition: all 0.3s linear;
+  position: relative;
+  transform-origin: 1px;
+}
+
+.nav-menu-button.open .line:first-child {
+  transform: rotate(45deg);
+}
+
+.nav-menu-button.open .line:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-menu-button.open .line:nth-child(3) {
+  transform: rotate(-45deg);
+}
+
+.nav-menu-button.open {
+  transform: translateX(-100px); /* Slides to meet dropdown */
+}
+
+@media (max-width: 768px) {
+  .nav-menu-button {
+    display: flex;
+  }
+}
+
+.nav-menu-container {
+  position: relative;
+}
+
+.nav-menu {
+  position: absolute;
+  top: calc(100% + 1.5rem); /* Consistent spacing from the hamburger */
+  right: 2rem; /* Consistent padding from the right edge */
+  background-color: #2a2a2a;
+  border-radius: 8px;
+  padding: 1rem; /* Uniform padding inside the dropdown */
+  min-width: 100px; /* Adjusted width for consistent spacing */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+.nav-menu a {
+  display: block;
+  color: white;
+  text-decoration: none;
+  padding: 0.5rem 0.5rem; /* Even top/bottom and left/right padding */
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-family: "Bebas", sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+.nav-menu a:hover {
+  background-color: #3a3a3a;
+  transform: translateX(5px);
+}
+
+.nav-menu a:not(:last-child) {
+  margin-bottom: 0.5rem; /* Consistent spacing between links */
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    right: 2rem;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    right: 2rem; /* Matches the dropdown's right padding */
+  }
+}

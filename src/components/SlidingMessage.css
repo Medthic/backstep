@@ -1,0 +1,36 @@
+.sliding-message-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2rem;
+  background: #18181b;
+  z-index: 1999;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.sliding-message {
+  font-family: "Bebas", sans-serif;
+  display: inline-block;
+  white-space: nowrap;
+  color: #fff;
+  font-size: 1.5rem;
+  padding: 0 2rem;
+  border-radius: 0;
+  box-shadow: none;
+  opacity: 1;
+  pointer-events: none;
+  animation: scroll-right 35s linear infinite;
+  will-change: transform;
+}
+
+@keyframes scroll-right {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100vw);
+  }
+}

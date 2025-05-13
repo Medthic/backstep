@@ -1,0 +1,107 @@
+/* AssignmentPage.css - styles specific to AssignmentPage and AssignmentEditPage */
+
+.assignment-grid {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  width: 100vw;
+  height: 100vh;
+  padding: 2rem 0;
+  box-sizing: border-box;
+}
+
+.assignment-grid.ambulance-layout {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ambulance-layout {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.assignment-box {
+  background: #333;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  padding: 2rem 1.5rem;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1.2rem;
+  margin-bottom: 0;
+}
+
+.ambulance-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.assignment-box,
+.ambulance-box {
+  margin-left: 0;
+  margin-right: 0;
+  align-self: center;
+}
+
+.ambulance-box {
+  min-width: 150px;
+  width: 150px;
+  padding: 1rem 0.75rem;
+  font-size: 0.85rem;
+}
+
+.ambulance-box h3 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.ambulance-box .assignment-row {
+  font-size: 0.85rem;
+}
+
+.assignment-box h3 {
+  color: #fff;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+}
+
+.assignment-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.assignment-row label {
+  color: #eee;
+  font-size: 1rem;
+}
+
+.assignment-row select {
+  padding: 0.4rem 0.7rem;
+  border-radius: 0.4rem;
+  border: 1px solid #888;
+  background: #222;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.assignment-row select:focus {
+  outline: 2px solid #646cff;
+}

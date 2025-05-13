@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase"; // adjust path if needed
-import "./SlidingMessage.css";
+import { useEffect, useState } from "react"
+import { supabase } from "../lib/supabase" // adjust path if needed
+import "./SlidingMessage.css"
 
 export const SlidingMessage = ({ duration = 4000 }) => {
-  const [message, setMessage] = useState("");
-  const [visible, setVisible] = useState(false);
+  const [message, setMessage] = useState("")
+  const [visible, setVisible] = useState(false)
 
   const fetchLatest = async () => {
     const { data } = await supabase
@@ -12,16 +12,16 @@ export const SlidingMessage = ({ duration = 4000 }) => {
       .select("message")
       .order("created_at", { ascending: false })
       .limit(1)
-      .single();
+      .single()
     if (data) {
-      setMessage(data.message);
-      setVisible(true);
-      setTimeout(() => setVisible(false), duration);
+      setMessage(data.message)
+      setVisible(true)
+      setTimeout(() => setVisible(false), duration)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchLatest();
+    fetchLatest()
 
     const channel = supabase
       .channel("realtime:sliding_messages")
@@ -35,16 +35,18 @@ export const SlidingMessage = ({ duration = 4000 }) => {
         { event: "UPDATE", schema: "public", table: "sliding_messages" },
         fetchLatest // fetch latest on update
       )
-      .subscribe();
+      .subscribe()
 
     return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [duration]);
+      supabase.removeChannel(channel)
+    }
+  }, [duration])
 
   return (
     <div className="sliding-message-bar">
-      <div className={`sliding-message${visible ? " show" : ""}`}>{message}</div>
+      <div className={`sliding-message${visible ? " show" : ""}`}>
+        {message}
+      </div>
     </div>
-  );
-};
+  )
+}

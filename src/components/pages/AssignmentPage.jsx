@@ -27,16 +27,40 @@ export const AssignmentPage = () => {
   const [members, setMembers] = useState([])
 
   useEffect(() => {
+    let ignore = false
     // Fetch assignments (selected member ids for each box/position)
-    supabase
-      .from("assignments")
-      .select("box, position, member_id")
-      .then(({ data }) => setAssignments(data || []))
+    const fetchAssignments = () =>
+      supabase
+        .from("assignments")
+        .select("box, position, member_id")
+        .then(({ data }) => {
+          if (!ignore) setAssignments(data || [])
+        })
+    fetchAssignments()
     // Fetch member info for display
     supabase
       .from("memberlist")
       .select("id, name, rank")
-      .then(({ data }) => setMembers(data || []))
+      .then(({ data }) => {
+        if (!ignore) setMembers(data || [])
+      })
+
+    // --- Real-time subscription for assignments table ---
+    const channel = supabase
+      .channel("realtime-assignments")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "assignments" },
+        (payload) => {
+          fetchAssignments()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      ignore = true
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   // Helper to get member info by id

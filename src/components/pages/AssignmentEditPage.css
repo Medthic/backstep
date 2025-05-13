@@ -1,14 +1,13 @@
-/* AssignmentEditPage.css - styles for AssignmentEditPage, matching AssignmentPage layout */
-
 .assignment-grid {
   display: flex;
   gap: 2rem;
   justify-content: center;
   align-items: center;
   flex-wrap: wrap;
-  width: 100vw;
+  width: 100%;
+  max-width: none; /* allow to grow naturally */
   min-height: 100vh;
-  padding: 2rem 0;
+  padding: 2rem 0; /* remove horizontal padding */
   box-sizing: border-box;
 }
 
@@ -18,9 +17,10 @@
   gap: 2rem;
   justify-content: center;
   align-items: center;
-  width: 100vw;
+  width: 100%;
+  max-width: none; /* allow to grow naturally */
   min-height: 100vh;
-  padding: 2rem 0;
+  padding: 2rem 0; /* remove horizontal padding */
   box-sizing: border-box;
 }
 

@@ -27,7 +27,7 @@ export const NavMenuButton = ({ onToggle }) => {
           <Link to="/" onClick={handleClick}>
             Home
           </Link>
-          <Link to="/pages/AssignmentEditPage" onClick={handleClick}>
+          <Link to="/edit-assignments" onClick={handleClick}>
             Assignments
           </Link>
           <Link to="/admin" onClick={handleClick}>

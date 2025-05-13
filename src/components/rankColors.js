@@ -1,6 +1,6 @@
 // src/components/rankColors.js
 export const rankColors = {
-  Captain: "#FF0000",
+  Chief: "#FF0000",
   Lieutenant: "#00FF00",
   Sergeant: "#0000FF",
   Private: "#FFD700",

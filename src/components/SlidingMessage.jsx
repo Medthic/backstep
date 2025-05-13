@@ -6,44 +6,34 @@ export const SlidingMessage = ({ duration = 4000 }) => {
   const [message, setMessage] = useState("");
   const [visible, setVisible] = useState(false);
 
-  useEffect(() => {
-    // Fetch the latest message on mount
-    const fetchLatest = async () => {
-      const { data } = await supabase
-        .from("sliding_messages")
-        .select("message")
-        .order("created_at", { ascending: false })
-        .limit(1)
-        .single();
-      if (data) {
-        setMessage(data.message);
-        setVisible(true);
-        setTimeout(() => setVisible(false), duration);
-      }
-    };
+  const fetchLatest = async () => {
+    const { data } = await supabase
+      .from("sliding_messages")
+      .select("message")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+    if (data) {
+      setMessage(data.message);
+      setVisible(true);
+      setTimeout(() => setVisible(false), duration);
+    }
+  };
 
+  useEffect(() => {
     fetchLatest();
 
-    // Subscribe to new messages and updates in real time
     const channel = supabase
       .channel("realtime:sliding_messages")
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "sliding_messages" },
-        (payload) => {
-          setMessage(payload.new.message);
-          setVisible(true);
-          setTimeout(() => setVisible(false), duration);
-        }
+        fetchLatest // fetch latest on insert
       )
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "sliding_messages" },
-        (payload) => {
-          setMessage(payload.new.message);
-          setVisible(true);
-          setTimeout(() => setVisible(false), duration);
-        }
+        fetchLatest // fetch latest on update
       )
       .subscribe();
 

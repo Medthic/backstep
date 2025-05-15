@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabase"
 import { rankColors } from "../rankColors"
+import Select from "react-select"
 import "./AssignmentEditPage.css"
 
 export const AssignmentEditPage = () => {
@@ -45,28 +46,47 @@ export const AssignmentEditPage = () => {
     )
   }
 
+  // Helper to build options
+  const memberOptions = members.map((m) => ({
+    value: m.id,
+    label: `${m.name} (${m.rank})`,
+    color: rankColors[m.rank]?.background || "#fff",
+  }))
+
   // Save assignment change
   const handleChange = async (boxIdx, posIdx, memberId) => {
     setSaving(true)
-    // Upsert assignment
-    await supabase.from("assignments").upsert(
-      {
-        box: boxIdx,
-        position: posIdx,
-        member_id: memberId,
-      },
-      { onConflict: ["box", "position"] }
-    )
-    // Update local state
-    setAssignments((prev) => {
-      const filtered = prev.filter(
-        (a) => !(a.box === boxIdx && a.position === posIdx)
+    // If memberId is null, remove the assignment
+    if (memberId === null) {
+      await supabase
+        .from("assignments")
+        .delete()
+        .eq("box", boxIdx)
+        .eq("position", posIdx)
+      setAssignments((prev) =>
+        prev.filter((a) => !(a.box === boxIdx && a.position === posIdx))
       )
-      return [
-        ...filtered,
-        { box: boxIdx, position: posIdx, member_id: memberId },
-      ]
-    })
+    } else {
+      // Upsert assignment
+      await supabase.from("assignments").upsert(
+        {
+          box: boxIdx,
+          position: posIdx,
+          member_id: memberId,
+        },
+        { onConflict: ["box", "position"] }
+      )
+      // Update local state
+      setAssignments((prev) => {
+        const filtered = prev.filter(
+          (a) => !(a.box === boxIdx && a.position === posIdx)
+        )
+        return [
+          ...filtered,
+          { box: boxIdx, position: posIdx, member_id: memberId },
+        ]
+      })
+    }
     setSaving(false)
   }
 
@@ -81,23 +101,31 @@ export const AssignmentEditPage = () => {
             return (
               <div className="assignment-row vertical-align" key={ddIdx}>
                 <div className="position-label left-align">{pos}</div>
-                <select
+                <Select
                   className="member-select"
-                  value={selectedId}
-                  onChange={(e) => handleChange(boxIdx, ddIdx, e.target.value)}
-                  disabled={saving}
-                >
-                  <option value="">Unassigned</option>
-                  {members.map((m) => (
-                    <option
-                      key={m.id}
-                      value={m.id}
-                      style={{ color: rankColors[m.rank] || "#fff" }}
-                    >
-                      {m.name} ({m.rank})
-                    </option>
-                  ))}
-                </select>
+                  value={
+                    memberOptions.find((opt) => opt.value === selectedId) ||
+                    null
+                  }
+                  onChange={(opt) =>
+                    handleChange(boxIdx, ddIdx, opt ? opt.value : null)
+                  }
+                  options={memberOptions}
+                  isClearable
+                  isSearchable
+                  isDisabled={saving}
+                  styles={{
+                    option: (provided, state) => ({
+                      ...provided,
+                      color: "#222",
+                      backgroundColor: state.data.color,
+                    }),
+                    singleValue: (provided, state) => ({
+                      ...provided,
+                      color: "#222",
+                    }),
+                  }}
+                />
               </div>
             )
           })}
@@ -113,25 +141,31 @@ export const AssignmentEditPage = () => {
               return (
                 <div className="assignment-row vertical-align" key={ddIdx}>
                   <div className="position-label left-align">{pos}</div>
-                  <select
+                  <Select
                     className="member-select"
-                    value={selectedId}
-                    onChange={(e) =>
-                      handleChange(boxIdx + 3, ddIdx, e.target.value)
+                    value={
+                      memberOptions.find((opt) => opt.value === selectedId) ||
+                      null
                     }
-                    disabled={saving}
-                  >
-                    <option value="">Unassigned</option>
-                    {members.map((m) => (
-                      <option
-                        key={m.id}
-                        value={m.id}
-                        style={{ color: rankColors[m.rank] || "#fff" }}
-                      >
-                        {m.name} ({m.rank})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(opt) =>
+                      handleChange(boxIdx + 3, ddIdx, opt ? opt.value : null)
+                    }
+                    options={memberOptions}
+                    isClearable
+                    isSearchable
+                    isDisabled={saving}
+                    styles={{
+                      option: (provided, state) => ({
+                        ...provided,
+                        color: "#222",
+                        backgroundColor: state.data.color,
+                      }),
+                      singleValue: (provided, state) => ({
+                        ...provided,
+                        color: "#222",
+                      }),
+                    }}
+                  />
                 </div>
               )
             })}

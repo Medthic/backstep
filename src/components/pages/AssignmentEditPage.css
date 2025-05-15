@@ -1,4 +1,5 @@
-.assignment-grid {
+.assignment-grid,
+.assignment-grid.ambulance-layout {
   display: flex;
   gap: 2rem;
   justify-content: center;
@@ -6,22 +7,20 @@
   flex-wrap: wrap;
   width: 100%;
   max-width: none; /* allow to grow naturally */
-  min-height: 100vh;
-  padding: 2rem 0; /* remove horizontal padding */
+  height: 98vh; /* <-- changed from min-height */
+  min-height: unset; /* <-- add this to override min-height if needed */
+  padding: 0; /* remove horizontal padding */
   box-sizing: border-box;
+  overflow-y: auto; /* updated from scroll */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
-.assignment-grid.ambulance-layout {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 2rem;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  max-width: none; /* allow to grow naturally */
-  min-height: 100vh;
-  padding: 2rem 0; /* remove horizontal padding */
-  box-sizing: border-box;
+.assignment-grid::-webkit-scrollbar,
+.assignment-grid.ambulance-layout::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+  display: none; /* Chrome, Safari, Opera */
 }
 
 .ambulance-layout {
@@ -95,15 +94,10 @@
 .member-select {
   width: 100%;
   border-radius: 0.6rem;
-  padding: 0.15rem 0.4rem;
-  min-height: 1.2rem;
-  font-size: 1rem;
-  font-weight: 500;
-  box-sizing: border-box;
-  background: #222;
-  color: #fff;
-  border: 2px solid #646cff;
-  transition: border 0.2s, background 0.2s, color 0.2s;
+  padding: 0.05rem 0.3rem; /* reduce padding */
+  min-height: 1.5rem; /* reduce height */
+  font-size: 0.9rem; /* reduce font size */
+  height: 2rem; /* set a fixed height if needed */
 }
 .member-select:focus {
   outline: 2px solid #646cff;
@@ -112,6 +106,17 @@
 .member-select:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+/* React Select specific: shrink control and value container */
+.member-select .react-select__control {
+  min-height: 1.5rem;
+  height: 2rem;
+  font-size: 0.9rem;
+  padding: 0;
+}
+.member-select .react-select__value-container {
+  padding: 0 0.3rem;
 }
 
 @media (max-width: 700px) {

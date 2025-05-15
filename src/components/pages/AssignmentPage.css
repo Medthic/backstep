@@ -108,7 +108,7 @@
   font-weight: 400;
   letter-spacing: 3px;
   margin-bottom: 0.1rem;
-  font-family: "BebasNeue", "Bebas", Arial, sans-serif;
+  font-family: "Bebas", sans-serif;
 }
 
 .assignment-row select {
@@ -130,20 +130,34 @@
   padding: 0.15rem 0.4rem;
   min-height: 1.2rem;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 300;
   box-sizing: border-box;
   transition: background 0.2s, border 0.2s, color 0.2s;
   display: flex;
   align-items: center;
   background: #333;
   color: #fff;
-  border: 2px solid #646cff;
+  border: 1px solid #808080;
 }
 
 .member-selection-box.unassigned {
   background: #222;
   color: #888;
   border: 1.5px solid #888;
+}
+
+.member-name {
+  font-weight: 600;
+  margin-right: 0.3em;
+  font-family: "Bebas", sans-serif;
+  font-size: 1.2rem;
+}
+
+.member-rank {
+  font-style: italic;
+  opacity: 0.8;
+  font-family: "Bebas", sans-serif;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 700px) {

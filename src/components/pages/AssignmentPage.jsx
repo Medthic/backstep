@@ -88,10 +88,20 @@ export const AssignmentPage = () => {
                         }`
                       : "member-selection-box unassigned"
                   }
+                  style={
+                    member && rankColors[member.rank?.toUpperCase()]
+                      ? {
+                          background:
+                            rankColors[member.rank.toUpperCase()].background,
+                          color: rankColors[member.rank.toUpperCase()].color,
+                        }
+                      : undefined
+                  }
                 >
                   {member ? (
                     <span>
-                      {member.name} ({member.rank})
+                      <span className="member-name">{member.name}</span>{" "}
+                      <span className="member-rank">{member.rank}</span>
                     </span>
                   ) : (
                     <span>Unassigned</span>
@@ -123,10 +133,20 @@ export const AssignmentPage = () => {
                           }`
                         : "member-selection-box unassigned"
                     }
+                    style={
+                      member && rankColors[member.rank?.toUpperCase()]
+                        ? {
+                            background:
+                              rankColors[member.rank.toUpperCase()].background,
+                            color: rankColors[member.rank.toUpperCase()].color,
+                          }
+                        : undefined
+                    }
                   >
                     {member ? (
                       <span>
-                        {member.name} ({member.rank})
+                        <span className="member-name">{member.name}</span>{" "}
+                        <span className="member-rank">{member.rank}</span>
                       </span>
                     ) : (
                       <span>Unassigned</span>

@@ -22,7 +22,7 @@ export const PageCarousel = () => {
         setIndex((i) => (i + 1) % pages.length)
         setSliding(false)
       }, 500) // match CSS transition duration
-    }, 30000)
+    }, 10000)
     return () => clearTimeout(timeoutRef.current)
   }, [index])
 

@@ -29,12 +29,15 @@
 }
 
 .navbar-left {
-  padding-left: 0rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem; /* space between clock and date */
 }
 
 .navbar-right {
   padding-right: 0rem;
 }
+
 
 @media (max-width: 768px) {
   .navbar-left {

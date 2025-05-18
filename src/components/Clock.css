@@ -4,6 +4,10 @@
   font-size: 3rem;
   font-weight: normal;
   margin-right: 0rem;
+  min-width: 9rem;
+  text-align: center;
+  text-align: left;
+  display: inline-block;
 }
 
 @keyframes blink {

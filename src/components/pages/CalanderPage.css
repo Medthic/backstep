@@ -1,18 +1,129 @@
-.calendar-embed-container {
-  height: calc(100vh - 5rem - 3.5rem); /* subtract nav and bottom bar */
-  width: 100vw;
-  margin: 0;
-  overflow: hidden;
-  display: flex;
-  align-items: stretch;
-  justify-content: stretch;
-  box-sizing: border-box;
-}
-
-.calendar-embed-iframe {
-  border: 0;
+/* Responsive: make sure calendar fills parent, minus nav and slider */
+.carousel-page.calendar-page,
+.calendar-page {
+  height: calc(100vh - 4.5rem - 1.5rem); /* adjust as needed */
   width: 100%;
-  height: 100%;
   min-height: 0;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #222;
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Make the calendar fill its container */
+.rbc-calendar {
+  flex: 1 1 0;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  background: #222;
+  color: #fff;
+  font-family: "Segoe UI", "Roboto", Arial, sans-serif;
+  overflow: hidden;
+}
+
+/* Toolbar styles */
+.rbc-toolbar {
+  background: #23272f;
+  color: #fff;
+  padding: 1rem 2rem 0.5rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  border-bottom: 1px solid #333;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+/* Hide the default button group if you want a cleaner look */
+.rbc-btn-group button {
+  background: #333;
+  color: #fff;
+  border: none;
+  margin: 0 0.2rem;
+  padding: 0.4rem 1rem;
+  border-radius: 0.3rem;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+.rbc-btn-group button:hover,
+.rbc-btn-group button:focus {
+  background: #444;
+}
+
+/* Month/week/day labels */
+.rbc-toolbar-label {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+  padding: 0.5rem 0;
+}
+
+/* Calendar grid */
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view,
+.rbc-header,
+.rbc-month-row,
+.rbc-row-content,
+.rbc-date-cell,
+.rbc-day-bg {
+  background: transparent;
+  border-radius: 0;
+}
+
+.rbc-header {
+  color: #b8b8b8;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #333;
+  padding: 0.5rem 0;
+}
+
+.rbc-date-cell {
+  color: #b8b8b8;
+}
+
+.rbc-selected-cell {
+  background: #2a2e38 !important;
+}
+
+.rbc-today {
+  background: #23272f !important;
+}
+
+.rbc-off-range-bg {
+  background: #181a1f !important;
+}
+
+.rbc-event {
+  background: linear-gradient(90deg, #375365 60%, #4e6e8e 100%) !important;
+  color: #fff !important;
+  font-size: 0.85rem !important;
+  padding: 2px 6px !important;
+  min-height: 1.2em;
+  border-radius: 0.2rem !important;
+  line-height: 1.2;
+  border: none !important;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
+  transition: background 0.2s;
+}
+
+.rbc-event:hover {
+  background: linear-gradient(90deg, #4e6e8e 60%, #375365 100%) !important;
+}
+
+.rbc-row-segment {
+  padding: 2px 0;
+}
+
+/* Popup event style */
+.rbc-overlay {
+  background: #23272f;
+  color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
 }

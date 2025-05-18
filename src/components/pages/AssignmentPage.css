@@ -1,45 +1,36 @@
 /* AssignmentPage.css - styles specific to AssignmentPage and AssignmentEditPage */
 
-.assignment-grid {
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
-  align-items: center; /* Center vertically */
-  flex-wrap: wrap;
-  width: 100vw;
-  height: 100vh;
-  padding: 2rem 0;
-  box-sizing: border-box;
-}
-
-.assignment-grid.ambulance-layout {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 2rem;
-  justify-content: center;
-  align-items: center; /* Center vertically */
-  width: 100vw;
-  height: 100vh;
-  padding: 2rem 0;
-  box-sizing: border-box;
-}
-
-.ambulance-layout {
-  flex-wrap: wrap;
-  align-items: center; /* Center vertically */
-}
-
-.assignment-box {
+.assignment-box,
+.ambulance-box {
   background: #b8b8b8;
   border-radius: 1rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   padding: 1.2rem 1.2rem;
-  min-width: 300px;
+  min-width: 220px;
+  max-width: 90vw;
+  width: 300px;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 0.7rem;
-  margin-bottom: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.assignment-grid,
+.assignment-grid.ambulance-layout {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  box-sizing: border-box;
+  padding: 2rem 0;
+  flex-wrap: wrap;
+  overflow: hidden;
 }
 
 .ambulance-stack {
@@ -48,14 +39,8 @@
   gap: 0.7rem;
 }
 
-.ambulance-box {
-  min-width: 220px;
-  width: 300px;
-  padding: 0.8rem 0.6rem;
-  font-size: 0.85rem;
-}
-
-.ambulance-box h3 {
+.ambulance-box h3,
+.assignment-box h3 {
   font-family: "Carbondale", sans-serif;
   color: #fff;
   text-align: center;
@@ -66,30 +51,15 @@
   line-height: 1.1;
 }
 
-.ambulance-box .assignment-row {
-  font-size: 0.85rem;
-}
-
-.assignment-box h3 {
-  font-family: "Carbondale", sans-serif;
-  color: #fff;
-  text-align: center;
-  margin: 0 0 0.1rem 0;
-  padding: 0;
-  font-size: 2.5rem;
-  letter-spacing: 2px;
-  line-height: 1.1;
-}
-
+.ambulance-box .assignment-row,
 .assignment-row {
+  font-size: 0.85rem;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
 
 .assignment-row.vertical-align {
-  display: flex;
-  flex-direction: column;
   align-items: flex-start;
   gap: 0.15rem;
   margin-bottom: 0.15rem;
@@ -128,22 +98,32 @@
   width: 100%;
   border-radius: 0.6rem;
   padding: 0.15rem 0.4rem;
-  min-height: 1.2rem;
+  min-height: 2.2rem; /* Ensures consistent height */
   font-size: 1rem;
   font-weight: 300;
   box-sizing: border-box;
   transition: background 0.2s, border 0.2s, color 0.2s;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   background: #333;
   color: #fff;
   border: 1px solid #808080;
+  line-height: 1.2;
 }
 
 .member-selection-box.unassigned {
   background: #222;
   color: #888;
   border: 1.5px solid #888;
+  /* Use same font and alignment as assigned */
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.2;
+  min-height: 2.2rem; /* Match assigned box */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .member-name {
@@ -166,13 +146,13 @@
     flex-direction: column !important;
     align-items: stretch !important;
     gap: 0.7rem !important;
-    height: auto !important;
-    min-height: 100vh;
-    /* Set top padding to match nav bar height (4rem) plus a little extra for spacing */
-    padding-top: 4.5rem !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding-top: 1rem !important;
     padding-bottom: 1rem !important;
     padding-left: 0.2rem !important;
     padding-right: 0.2rem !important;
+    overflow: hidden !important;
   }
   .assignment-box,
   .ambulance-box {

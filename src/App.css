@@ -41,3 +41,8 @@
 .read-the-docs {
   color: #888;
 }
+
+.main-content {
+  margin-top: 4rem; /* Height of TopNavBar */
+  margin-bottom: 2.5rem; /* Height of SlidingMessage */
+}

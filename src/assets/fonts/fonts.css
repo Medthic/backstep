@@ -22,6 +22,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Steelfish-IT";
+  src: url("./steelfishregit.otf") format("opentype");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* Utility classes for easy use */
 .font-bebas {
   font-family: "Bebas", sans-serif;
@@ -33,4 +41,8 @@
 
 .font-carbondale {
   font-family: "Carbondale", sans-serif;
+}
+
+.font-steelfish-it {
+  font-family: "Steelfish-IT", sans-serif;
 }

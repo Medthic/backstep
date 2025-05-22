@@ -18,7 +18,14 @@ function App() {
             </div>
           }
         />
-        <Route path="/edit-assignments" element={<AssignmentEditPage />} />
+        <Route
+          path="/edit-assignments"
+          element={
+            <div className="main-content">
+              <AssignmentEditPage />
+            </div>
+          }
+        />
       </Routes>
       <SlidingMessage />
     </BrowserRouter>

@@ -31,10 +31,11 @@
   background: #23272f;
   color: #fff;
   padding: 1rem 2rem 0.5rem 2rem;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 500;
   border-bottom: 1px solid #333;
   border-radius: 0.5rem 0.5rem 0 0;
+  font-family: "bebas-neue", sans-serif;
 }
 
 /* Hide the default button group if you want a cleaner look */

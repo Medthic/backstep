@@ -1,6 +1,3 @@
-/* The TopNavBar should be outside the carousel in your React layout.
-   This CSS ensures the carousel sits directly below the nav bar and above the bottom slider/message. */
-
 .carousel {
   width: 100vw;
   max-width: 100vw;

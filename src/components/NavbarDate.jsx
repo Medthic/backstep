@@ -2,9 +2,17 @@ import React from "react"
 import "./NavbarDate.css"
 
 function getOrdinal(n) {
-  const s = ["th", "st", "nd", "rd"],
-    v = n % 100
-  return s[(v - 20) % 5] || s[v] || s[0]
+  if (n % 100 >= 11 && n % 100 <= 13) return "th"
+  switch (n % 10) {
+    case 1:
+      return "st"
+    case 2:
+      return "nd"
+    case 3:
+      return "rd"
+    default:
+      return "th"
+  }
 }
 
 export default function NavDate({ date }) {

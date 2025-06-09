@@ -1,34 +1,14 @@
+body,
+html,
+.admin-container,
+.admin-table-container {
+  overflow-x: hidden;
+}
+
 .admin-container {
   background: #333;
   border-radius: 1rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  /* Make the Name column bigger */
-  .admin-table th:first-child,
-  .admin-table td:first-child {
-    min-width: 200px;
-    width: 240px;
-    text-align: left;
-  }
-
-  .admin-table th:nth-child(2),
-  .admin-table td:nth-child(2) {
-    min-width: 220px;
-    width: 260px;
-    text-align: center;
-  } /* Make the Name column smaller and the Rank column wider */
-  .admin-table th:first-child,
-  .admin-table td:first-child {
-    min-width: 150px;
-    width: 180px;
-    text-align: left;
-  }
-
-  .admin-table th:nth-child(2),
-  .admin-table td:nth-child(2) {
-    min-width: 220px;
-    width: 260px;
-    text-align: center;
-  }
   max-width: 700px;
   margin: 2rem auto;
   padding: 2rem;
@@ -88,7 +68,7 @@
   font-family: "BebasNeue", Arial, sans-serif;
 }
 
-/* Match AssignmentEditPage style for react-select */
+/* React-select styles */
 .member-select {
   font-family: "BebasNeue", Arial, sans-serif;
   font-size: 1.1rem;
@@ -118,8 +98,6 @@
 .admin-table-container {
   margin-top: 0;
   width: 100%;
-  overflow-x: auto;
-  max-width: 100%;
 }
 
 .admin-table {
@@ -140,10 +118,30 @@
   text-align: center;
 }
 
-/* Left-align only the first column (names) */
+/* Name column left-aligned */
 .admin-table th:first-child,
 .admin-table td:first-child {
+  min-width: 150px;
+  width: 180px;
   text-align: left;
+}
+
+/* Rank column */
+.admin-table th:nth-child(2),
+.admin-table td:nth-child(2) {
+  min-width: 220px;
+  width: 260px;
+  text-align: center;
+}
+
+/* Action column */
+.admin-table th:nth-child(3),
+.admin-table td:nth-child(3) {
+  min-width: 90px;
+  width: 90px;
+  text-align: center;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .admin-table th {
@@ -170,22 +168,6 @@
   background: #292929;
 }
 
-.admin-table th:nth-child(2),
-.admin-table td:nth-child(2) {
-  min-width: 220px;
-  width: 260px;
-  text-align: center;
-}
-
-.admin-table th:nth-child(3),
-.admin-table td:nth-child(3) {
-  min-width: 90px;
-  width: 90px;
-  text-align: center;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
 .admin-table td .member-select {
   margin-left: auto;
   margin-right: auto;
@@ -195,6 +177,7 @@
   width: 100%;
 }
 
+/* Modal styles */
 .admin-modal-backdrop {
   position: fixed;
   top: 0;
@@ -216,4 +199,131 @@
   min-width: 320px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
   font-family: "BebasNeue", Arial, sans-serif;
+}
+
+/* Popup styles */
+.admin-popup {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 1rem 2rem;
+  border-radius: 0.7rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  font-family: "BebasNeue", Arial, sans-serif;
+  font-size: 1.3rem;
+  z-index: 2000;
+  animation: fadeInOut 2s;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+}
+
+/* Responsive styles for mobile devices */
+@media (max-width: 600px) {
+  .admin-container {
+    max-width: 100vw;
+    padding: 1rem;
+    border-radius: 0;
+  }
+
+  .admin-title {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .admin-form {
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .admin-input {
+    font-size: 1.1rem;
+    padding: 0.4rem;
+  }
+
+  .admin-button {
+    font-size: 1rem;
+    padding: 0.4rem;
+  }
+
+  .admin-table-container {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    overflow-x: auto;
+  }
+
+  .admin-table {
+    font-size: 0.95rem;
+    min-width: 480px;
+    width: 100%;
+    border-radius: 0.5rem;
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 0.4rem 0.5rem;
+  }
+
+  /* Reduce column widths for mobile */
+  .admin-table th:first-child,
+  .admin-table td:first-child {
+    min-width: 90px;
+    width: 110px;
+  }
+
+  .admin-table th:nth-child(2),
+  .admin-table td:nth-child(2) {
+    min-width: 120px;
+    width: 140px;
+  }
+
+  .admin-table th:nth-child(3),
+  .admin-table td:nth-child(3) {
+    min-width: 60px;
+    width: 70px;
+    padding-left: 0.2rem;
+    padding-right: 0.2rem;
+  }
+
+  .admin-table td .member-select {
+    min-width: 100px;
+    max-width: 140px;
+    font-size: 0.95rem;
+  }
+
+  .admin-modal {
+    min-width: 90vw;
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+
+  .admin-popup {
+    width: 90vw;
+    min-width: unset;
+    font-size: 1rem;
+    padding: 0.7rem 1rem;
+    border-radius: 0.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
 }

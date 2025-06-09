@@ -18,6 +18,8 @@ export const AdminPage = () => {
   const [deleteTargetId, setDeleteTargetId] = useState(null)
   const [deleteCode, setDeleteCode] = useState("")
   const [deleteError, setDeleteError] = useState("")
+  const [showMessagePopup, setShowMessagePopup] = useState(false)
+  const [popup, setPopup] = useState({ show: false, message: "", type: "" })
 
   // Prepare options for react-select
   const rankOptions = Object.keys(rankColors).map((rank) => ({
@@ -26,6 +28,9 @@ export const AdminPage = () => {
     color: rankColors[rank].background,
     textColor: rankColors[rank].color,
   }))
+
+  // Define the order of ranks for sorting
+  const rankOrder = Object.keys(rankColors)
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -36,6 +41,12 @@ export const AdminPage = () => {
     }
   }, [isLoggedIn, memberStatus])
 
+  // Helper to show popup
+  const showPopup = (message, type = "info", duration = 2000) => {
+    setPopup({ show: true, message, type })
+    setTimeout(() => setPopup({ show: false, message: "", type: "" }), duration)
+  }
+
   // Login handler
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -45,14 +56,15 @@ export const AdminPage = () => {
       .select("code")
       .single()
     if (fetchError) {
-      setError("Error connecting to server.")
+      showPopup("Error connecting to server.", "error")
       return
     }
     if (data && input === data.code) {
       setIsLoggedIn(true)
       setInput("")
+      showPopup("Login successful!", "success")
     } else {
-      setError("Incorrect passcode.")
+      showPopup("Incorrect passcode.", "error")
     }
   }
 
@@ -71,11 +83,13 @@ export const AdminPage = () => {
         .from("sliding_messages")
         .update({ message })
         .eq("id", uuid)
-      setMessageStatus(
-        updateError ? "Failed to update message." : "Message updated!"
-      )
+      if (updateError) {
+        showPopup("Failed to update message.", "error")
+      } else {
+        showPopup("Message updated!", "success")
+      }
     } else {
-      setMessageStatus("Could not find message row.")
+      showPopup("Could not find message row.", "error")
     }
   }
 
@@ -87,11 +101,16 @@ export const AdminPage = () => {
       .from("memberlist")
       .insert([{ name: memberName, rank: memberRank }])
     if (error) {
-      setMemberStatus("Failed to add member.")
+      showPopup("Failed to add member.", "error")
     } else {
-      setMemberStatus("Member added!")
+      showPopup("Member added!", "success")
       setMemberName("")
       setMemberRank("")
+      // Fetch updated members list
+      const { data } = await supabase
+        .from("memberlist")
+        .select("id, name, rank")
+      setMembers(data || [])
     }
   }
 
@@ -112,11 +131,11 @@ export const AdminPage = () => {
       .select("code")
       .single()
     if (fetchError) {
-      setDeleteError("Error connecting to server.")
+      showPopup("Error connecting to server.", "error")
       return
     }
     if (!data || deleteCode !== data.code) {
-      setDeleteError("Incorrect passcode.")
+      showPopup("Incorrect passcode.", "error")
       return
     }
     const { error } = await supabase
@@ -124,9 +143,9 @@ export const AdminPage = () => {
       .delete()
       .eq("id", deleteTargetId)
     if (error) {
-      setMemberStatus("Failed to delete member.")
+      showPopup("Failed to delete member.", "error")
     } else {
-      setMemberStatus("Member deleted!")
+      showPopup("Member deleted!", "success")
       setMembers(members.filter((m) => m.id !== deleteTargetId))
     }
     setShowDeleteConfirm(false)
@@ -163,7 +182,10 @@ export const AdminPage = () => {
             Login
           </button>
         </form>
-        {error && <div className="admin-error">{error}</div>}
+        {/* Popup for login errors */}
+        {popup.show && (
+          <div className={`admin-popup ${popup.type}`}>{popup.message}</div>
+        )}
       </div>
     )
   }
@@ -186,8 +208,11 @@ export const AdminPage = () => {
         <button type="submit" className="admin-button">
           Update Message
         </button>
-        {messageStatus && <div className="admin-error">{messageStatus}</div>}
       </form>
+      {/* Popup for all alerts */}
+      {popup.show && (
+        <div className={`admin-popup ${popup.type}`}>{popup.message}</div>
+      )}
       {/* Members Table */}
       <div className="admin-table-container">
         <h2 style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>Members</h2>
@@ -200,40 +225,51 @@ export const AdminPage = () => {
             </tr>
           </thead>
           <tbody>
-            {members.map((member) => (
-              <tr key={member.id}>
-                <td>{member.name}</td>
-                <td>
-                  <span
-                    style={{
-                      background: rankColors[member.rank]?.background,
-                      color: rankColors[member.rank]?.color,
-                      padding: "2px 8px",
-                      borderRadius: "0.3em",
-                      fontWeight: 600,
-                      fontFamily: '"BebasNeue", Arial, sans-serif',
-                      letterSpacing: "2px",
-                    }}
-                  >
-                    {member.rank.replace(/([A-Z])/g, " $1").trim()}
-                  </span>
-                </td>
-                <td>
-                  <button
-                    className="admin-button"
-                    style={{
-                      background: "#ce2029",
-                      color: "#fff",
-                      minWidth: 60,
-                      padding: "0.3rem 0.8rem",
-                    }}
-                    onClick={() => handleDeleteClick(member.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
+            {members
+              .slice() // avoid mutating state
+              .sort((a, b) => {
+                const aIdx = rankOrder.indexOf(a.rank)
+                const bIdx = rankOrder.indexOf(b.rank)
+                // If rank not found, put at end
+                if (aIdx === -1 && bIdx === -1) return 0
+                if (aIdx === -1) return 1
+                if (bIdx === -1) return -1
+                return aIdx - bIdx
+              })
+              .map((member) => (
+                <tr key={member.id}>
+                  <td>{member.name}</td>
+                  <td>
+                    <span
+                      style={{
+                        background: rankColors[member.rank]?.background,
+                        color: rankColors[member.rank]?.color,
+                        padding: "2px 8px",
+                        borderRadius: "0.3em",
+                        fontWeight: 600,
+                        fontFamily: '"BebasNeue", Arial, sans-serif',
+                        letterSpacing: "2px",
+                      }}
+                    >
+                      {member.rank.replace(/([A-Z])/g, " $1").trim()}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      className="admin-button"
+                      style={{
+                        background: "#ce2029",
+                        color: "#fff",
+                        minWidth: 60,
+                        padding: "0.3rem 0.8rem",
+                      }}
+                      onClick={() => handleDeleteClick(member.id)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
             {/* Add Member Row */}
             <tr>
               <td>
@@ -266,10 +302,7 @@ export const AdminPage = () => {
                   styles={{
                     option: (provided, state) => ({
                       ...provided,
-                      backgroundColor:
-                        state.isSelected || state.isFocused
-                          ? state.data.color
-                          : state.data.color, // Always show the color for each option
+                      backgroundColor: state.data.color,
                       color: state.data.textColor,
                       fontFamily: '"BebasNeue", Arial, sans-serif',
                       letterSpacing: "2px",
@@ -315,7 +348,6 @@ export const AdminPage = () => {
             </tr>
           </tbody>
         </table>
-        {memberStatus && <div className="admin-error">{memberStatus}</div>}
       </div>
       {/* Delete confirmation modal */}
       {showDeleteConfirm && (
@@ -354,10 +386,13 @@ export const AdminPage = () => {
                   Cancel
                 </button>
               </div>
-              {deleteError && <div className="admin-error">{deleteError}</div>}
             </form>
           </div>
         </div>
+      )}
+      {/* Popup for all alerts */}
+      {popup.show && (
+        <div className={`admin-popup ${popup.type}`}>{popup.message}</div>
       )}
     </div>
   )

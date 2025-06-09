@@ -3,8 +3,9 @@ import { TopNavBar } from "./components/TopNavBar"
 import { SlidingMessage } from "./components/SlidingMessage"
 import { PageCarousel } from "./components/PageCarousel"
 import { AssignmentEditPage } from "./components/pages/AssignmentEditPage"
-import { AdminPage } from "./components/pages/AdminPage" // Adjust the path as needed
+import { AdminPage } from "./components/pages/AdminPage"
 import "./App.css"
+import CheckInDisplay from "./components/checkindisplay"
 
 function App() {
   return (

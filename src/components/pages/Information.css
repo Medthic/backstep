@@ -1,102 +1,6 @@
-.info-page {
-  display: flex;
-  gap: 2rem;
-  padding: 2rem;
-  background: #222;
-  color: #fff;
-  font-family: "BebasNeue", Arial, sans-serif;
-  min-height: 60vh;
-}
-
-.info-column {
-  flex: 1;
-  background: #292929;
-  border-radius: 0.7rem;
-  padding: 1.5rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-}
-
-.info-column h2 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.6rem;
-  letter-spacing: 2px;
-  text-align: center;
-}
-
-.info-column ul {
-  list-style: disc inside;
-  padding-left: 0;
-}
-
-.info-column li {
-  margin-bottom: 0.7rem;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
-}
-
-.info-carousel-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  background: #222;
-  color: #fff;
-  font-family: "BebasNeue", Arial, sans-serif;
-  gap: 1rem;
-}
-
-.info-carousel {
-  background: #292929;
-  border-radius: 0.7rem;
-  padding: 2rem 2.5rem;
-  min-width: 320px;
-  max-width: 400px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  text-align: center;
-}
-
-.info-carousel h2 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  font-size: 1.6rem;
-  letter-spacing: 2px;
-}
-
-.info-carousel ul {
-  list-style: disc inside;
-  padding-left: 0;
-  margin: 0;
-}
-
-.info-carousel li {
-  margin-bottom: 0.7rem;
-  font-size: 1.2rem;
-  letter-spacing: 1px;
-}
-
-.carousel-arrow {
-  background: #375365;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  width: 2.5rem;
-  height: 2.5rem;
-  font-size: 2rem;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.carousel-arrow:hover {
-  background: #466b8a;
-}
-
 .info-full-container {
   display: flex;
-  width: 100vw; /* Make container full viewport width */
+  width: 100vw;
   min-height: 60vh;
   height: 100%;
   background: #222;
@@ -105,9 +9,7 @@
   gap: 0;
   padding: 2rem 0;
   box-sizing: border-box;
-  margin-left: calc(
-    -50vw + 50%
-  ); /* Center full-width inside a centered parent */
+  margin-left: calc(-50vw + 50%);
   margin-right: calc(-50vw + 50%);
 }
 
@@ -162,8 +64,6 @@
   color: #545454;
   border: 1px solid #363636;
 }
-
-/* Add to Information.css */
 
 .status-item {
   display: flex;
@@ -230,16 +130,67 @@
 
 .run-stat-title {
   font-family: "BebasNeue", Arial, sans-serif;
-  font-size: 1.8em; /* Increase font size */
-  font-weight: 700; /* Make it bold */
-  letter-spacing: 1.5px; /* Add spacing for Bebas Neue style */
+  font-size: 1.8em;
+  font-weight: 700;
+  letter-spacing: 1.5px;
   margin-bottom: 8px;
-  text-transform: uppercase; /* Ensure titles are uppercase */
-  color: white; /* Ensure text is visible on colored backgrounds */
+  text-transform: uppercase;
+  color: white;
 }
 
 .run-stat-number {
   font-size: 1.5em;
+}
+
+.run-stat-fire {
+  background-color: #fd4650;
+}
+.run-stat-ems {
+  background-color: #adc3e5;
+}
+.run-stat-other {
+  background-color: gray;
+}
+
+/* News Styles */
+.news-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.news-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.news-date {
+  font-size: 0.85em;
+  color: #888;
+  margin-top: 0.3em;
+}
+
+.news-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 32px;
+}
+
+.news-icon.important {
+  color: #fd4650;
+  font-size: 2em;
+}
+.news-icon.policy {
+  color: #3b82f6;
+  font-size: 2em;
+}
+.news-icon.general {
+  color: #888;
+  font-size: 2em;
 }
 
 /* Responsive for mobile */
@@ -269,21 +220,4 @@
     font-size: 1rem;
     padding: 0.7rem;
   }
-}
-
-.pie-chart-container {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.pie-chart-container h3 {
-  font-family: "BebasNeue", Arial, sans-serif;
-  font-size: 1.5em;
-  margin-bottom: 10px;
-}
-
-.pie-chart-container canvas {
-  max-width: 300px; /* Set maximum width */
-  max-height: 300px; /* Set maximum height */
-  margin: 0 auto; /* Center the chart */
 }

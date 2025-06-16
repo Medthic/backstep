@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react"
-import { Pie } from "react-chartjs-2"
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js"
 import "./Information.css"
-
-ChartJS.register(ArcElement, Tooltip, Legend)
+import { MdOutlineNotificationImportant } from "react-icons/md"
+import { HiOutlineDocumentText } from "react-icons/hi"
+import { ImNewspaper } from "react-icons/im"
 
 const SHEET_ID = "1g_BfPk42Cy83PTkVGlAyxC3w5g9MUQXVHyO-I7VA2rE"
 const API_KEY = "AIzaSyAqBIZ19jFidOeEii80p_EQSzRtBltLwlc"
@@ -12,18 +11,18 @@ const fetchSheet = async (sheetName) => {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${sheetName}?key=${API_KEY}`
   const res = await fetch(url)
   const data = await res.json()
-  // For Status, return the whole row (name and status)
   if (sheetName === "Status") {
     return data.values ? data.values.slice(1) : []
   }
-  // For RunStats, return both columns (name and numbers)
   if (sheetName === "RunStats") {
     return data.values
       ? data.values.slice(1).map((row) => [row[0], row[1]])
       : []
   }
-  // For others, just the first column
-  return data.values ? data.values.slice(1).map((row) => row[0]) : []
+  // For DepartmentNews: [news, date, icon]
+  return data.values
+    ? data.values.slice(1).map((row) => [row[0], row[1], row[2]])
+    : []
 }
 
 export default function Information() {
@@ -45,7 +44,6 @@ export default function Information() {
     fetchAll()
   }, [])
 
-  // Helper to get status color class
   const getStatusClass = (status) => {
     if (!status) return ""
     const s = status.toLowerCase()
@@ -55,39 +53,50 @@ export default function Information() {
     return "status-other"
   }
 
-  // Prepare data for the pie chart
-  const pieChartData = {
-    labels: ["Fire", "EMS"],
-    datasets: [
-      {
-        data: data.runStats.reduce(
-          (acc, [number, description]) => {
-            if (description.toLowerCase().includes("fire"))
-              acc[0] += parseInt(number, 10)
-            if (description.toLowerCase().includes("ems"))
-              acc[1] += parseInt(number, 10)
-            return acc
-          },
-          [0, 0]
-        ),
-        backgroundColor: ["red", "blue"],
-        hoverBackgroundColor: ["darkred", "darkblue"],
-      },
-    ],
+  const getRunStatClass = (description) => {
+    const desc = description.toLowerCase()
+    if (desc.includes("fire")) return "run-stat-fire"
+    if (desc.includes("ems")) return "run-stat-ems"
+    return "run-stat-other"
+  }
+
+  // Helper for icon rendering
+  const renderNewsIcon = (iconType) => {
+    if (!iconType) return null
+    const type = iconType.toLowerCase()
+    if (type === "important") {
+      return <MdOutlineNotificationImportant className="news-icon important" />
+    }
+    if (type === "policy change") {
+      return <HiOutlineDocumentText className="news-icon policy" />
+    }
+    if (type === "general") {
+      return <ImNewspaper className="news-icon general" />
+    }
+    return null
   }
 
   return (
     <div className="info-full-container">
       <div className="info-col">
         <h2>Department News</h2>
-        <ul className="scroll-list">
-          <div className="scroll-animate">
-            {data.departmentNews.map((item, idx) => (
+        <ul>
+          {data.departmentNews.map((row, idx) => {
+            const [news, date, iconType] = row
+            return (
               <li key={idx}>
-                <div className="info-item news-item">{item}</div>
+                <div className="info-item news-item news-flex">
+                  <div className="news-content">
+                    <div>{news}</div>
+                    {date && <div className="news-date">{date}</div>}
+                  </div>
+                  <div className="news-icon-container">
+                    {renderNewsIcon(iconType)}
+                  </div>
+                </div>
               </li>
-            ))}
-          </div>
+            )
+          })}
         </ul>
       </div>
       <div className="info-col">
@@ -95,17 +104,10 @@ export default function Information() {
         <div className="run-stats-grid">
           {data.runStats.map((row, idx) => {
             const [number, description] = row
-            const bgColor =
-              description.toLowerCase().includes("fire")
-                ? "red"
-                : description.toLowerCase().includes("ems")
-                ? "blue"
-                : "gray" // Default color if neither fire nor EMS
             return (
               <div
                 key={idx}
-                className="run-stat-item"
-                style={{ backgroundColor: bgColor }}
+                className={`run-stat-item ${getRunStatClass(description)}`}
               >
                 <div className="run-stat-title">{description}</div>
                 <div className="run-stat-number" style={{ fontWeight: "bold" }}>
@@ -114,11 +116,6 @@ export default function Information() {
               </div>
             )
           })}
-        </div>
-        {/* Pie Chart */}
-        <div className="pie-chart-container">
-          <h3>EMS vs Fire Statistics</h3>
-          <Pie data={pieChartData} />
         </div>
       </div>
       <div className="info-col">

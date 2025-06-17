@@ -9,7 +9,7 @@ import CheckInDisplay from "./components/checkindisplay"
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/backstep">
       <TopNavBar />
       <Routes>
         <Route

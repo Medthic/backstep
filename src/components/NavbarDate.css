@@ -4,7 +4,8 @@
   font-weight: 300;
   color: #fff;
   letter-spacing: 4px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  /* remove box shadow so date text has no halo */
+  box-shadow: none;
   margin-left: 1em;
   margin-right: 1em;
   display: inline-block;

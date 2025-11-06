@@ -23,7 +23,7 @@ export const AssignmentPage = () => {
     ["STAFF", "STAFF"], // Ambulance 48
     ["STAFF", "STAFF"], // Ambulance 49
   ]
-  const boxCount = boxNames.length
+  const _boxCount = boxNames.length
 
   const [assignments, setAssignments] = useState([])
   const [members, setMembers] = useState([])
@@ -53,7 +53,7 @@ export const AssignmentPage = () => {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "assignments" },
-        (payload) => {
+        () => {
           fetchAssignments()
         }
       )

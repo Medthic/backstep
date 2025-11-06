@@ -7,9 +7,9 @@ import { rankColors } from "../rankColors"
 export const AdminPage = () => {
   const [input, setInput] = useState("")
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [error, setError] = useState("")
+  const [_error, _setError] = useState("")
   const [message, setMessage] = useState("")
-  const [messageStatus, setMessageStatus] = useState("")
+  const [_messageStatus, _setMessageStatus] = useState("")
   const [memberName, setMemberName] = useState("")
   const [memberRank, setMemberRank] = useState("")
   const [memberStatus, setMemberStatus] = useState("")
@@ -17,8 +17,8 @@ export const AdminPage = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [deleteTargetId, setDeleteTargetId] = useState(null)
   const [deleteCode, setDeleteCode] = useState("")
-  const [deleteError, setDeleteError] = useState("")
-  const [showMessagePopup, setShowMessagePopup] = useState(false)
+  const [_deleteError, _setDeleteError] = useState("")
+  const [_showMessagePopup, _setShowMessagePopup] = useState(false)
   const [popup, setPopup] = useState({ show: false, message: "", type: "" })
 
   // Prepare options for react-select
@@ -50,7 +50,7 @@ export const AdminPage = () => {
   // Login handler
   const handleLogin = async (e) => {
     e.preventDefault()
-    setError("")
+  _setError("")
     const { data, error: fetchError } = await supabase
       .from("admin_passcode")
       .select("code")
@@ -71,7 +71,7 @@ export const AdminPage = () => {
   // Update scrolling message
   const handleMessageSubmit = async (e) => {
     e.preventDefault()
-    setMessageStatus("")
+  _setMessageStatus("")
     const { data } = await supabase
       .from("sliding_messages")
       .select("id")
@@ -119,13 +119,13 @@ export const AdminPage = () => {
     setDeleteTargetId(id)
     setShowDeleteConfirm(true)
     setDeleteCode("")
-    setDeleteError("")
+  _setDeleteError("")
   }
 
   // Confirm delete handler
   const handleConfirmDelete = async (e) => {
     e.preventDefault()
-    setDeleteError("")
+  _setDeleteError("")
     const { data, error: fetchError } = await supabase
       .from("admin_passcode")
       .select("code")
@@ -151,7 +151,7 @@ export const AdminPage = () => {
     setShowDeleteConfirm(false)
     setDeleteTargetId(null)
     setDeleteCode("")
-    setDeleteError("")
+  _setDeleteError("")
   }
 
   // Cancel delete
@@ -159,7 +159,7 @@ export const AdminPage = () => {
     setShowDeleteConfirm(false)
     setDeleteTargetId(null)
     setDeleteCode("")
-    setDeleteError("")
+    _setDeleteError("")
   }
 
   if (!isLoggedIn) {

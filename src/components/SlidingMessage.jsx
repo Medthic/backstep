@@ -6,21 +6,22 @@ export const SlidingMessage = ({ duration = 4000 }) => {
   const [message, setMessage] = useState("")
   const [visible, setVisible] = useState(false)
 
-  const fetchLatest = async () => {
-    const { data } = await supabase
-      .from("sliding_messages")
-      .select("message")
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .single()
-    if (data) {
-      setMessage(data.message)
-      setVisible(true)
-      setTimeout(() => setVisible(false), duration)
-    }
-  }
-
   useEffect(() => {
+    // fetchLatest moved inside effect to avoid missing dependency warnings
+    const fetchLatest = async () => {
+      const { data } = await supabase
+        .from("sliding_messages")
+        .select("message")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single()
+      if (data) {
+        setMessage(data.message)
+        setVisible(true)
+        setTimeout(() => setVisible(false), duration)
+      }
+    }
+
     fetchLatest()
 
     const channel = supabase

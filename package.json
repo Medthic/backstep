@@ -1,7 +1,7 @@
 {
   "name": "backstep",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0-beta.1",
   "type": "module",
   "homepage": "https://medthic.github.io/backstep/",
   "scripts": {
@@ -41,5 +41,10 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.6",
     "vite": "^6.3.5"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Medthic/backstep.git"
+  },
+  "license": "MIT"
 }

@@ -6,7 +6,8 @@ import { NavMenuButton } from "./NavMenuButton"
 import NavDate from "./NavbarDate" // <-- import the date component
 
 export const TopNavBar = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  // menu open state kept but prefixed to avoid unused-var lint error until menu is implemented
+  const [_isMenuOpen, _setIsMenuOpen] = useState(false)
 
   return (
     <nav className="navbar">
@@ -16,7 +17,7 @@ export const TopNavBar = () => {
             <Clock />
             <NavDate />
           </div>
-          <NavMenuButton onToggle={setIsMenuOpen} />
+          <NavMenuButton onToggle={_setIsMenuOpen} />
         </div>
       </div>
     </nav>

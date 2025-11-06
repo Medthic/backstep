@@ -33,6 +33,34 @@ html,
   margin-bottom: 0.7rem;
 }
 
+/* Carousel toggles */
+.carousel-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.carousel-toggle-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.carousel-toggle-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 1.1rem;
+}
+
+.carousel-toggle-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #38b000; /* green accent */
+  cursor: pointer;
+}
+
 .admin-input {
   font-size: 1.5rem;
   padding: 0.5rem;

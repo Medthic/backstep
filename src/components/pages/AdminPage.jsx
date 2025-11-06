@@ -20,6 +20,26 @@ export const AdminPage = () => {
   const [_deleteError, _setDeleteError] = useState("")
   const [_showMessagePopup, _setShowMessagePopup] = useState(false)
   const [popup, setPopup] = useState({ show: false, message: "", type: "" })
+  // Admin actor id stored in localStorage to identify the client making changes
+  const [adminActor, setAdminActor] = useState(() => {
+    try {
+      return localStorage.getItem("admin_actor") || null
+    } catch (e) {
+      return null
+    }
+  })
+  const [adminId, setAdminId] = useState(null)
+  const [adminName, setAdminName] = useState(null)
+
+  // Carousel pages configuration (Supabase-backed)
+  const defaultCarouselConfig = {
+    assignment: true,
+    calendar: true,
+    information: true,
+  }
+  // store DB row id for carousel settings if present
+  const [carouselConfig, setCarouselConfig] = useState(defaultCarouselConfig)
+  const [carouselRowId, setCarouselRowId] = useState(null)
 
   // Prepare options for react-select
   const rankOptions = Object.keys(rankColors).map((rank) => ({
@@ -39,6 +59,28 @@ export const AdminPage = () => {
         .select("id, name, rank")
         .then(({ data }) => setMembers(data || []))
     }
+    // load carousel config from Supabase when admin page mounts / login state changes
+    const fetchCarouselConfig = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("carousel_settings")
+          .select("id, config")
+          .limit(1)
+          .single()
+        if (!error && data && data.config) {
+          setCarouselConfig(data.config)
+          setCarouselRowId(data.id)
+        } else {
+          // no row yet — keep defaults until a row is created
+          setCarouselConfig(defaultCarouselConfig)
+        }
+      } catch (e) {
+        // on error, keep defaults and notify admin
+        setCarouselConfig(defaultCarouselConfig)
+        showPopup("Could not load carousel settings from server", "error")
+      }
+    }
+    fetchCarouselConfig()
   }, [isLoggedIn, memberStatus])
 
   // Helper to show popup
@@ -47,24 +89,82 @@ export const AdminPage = () => {
     setTimeout(() => setPopup({ show: false, message: "", type: "" }), duration)
   }
 
+  // Ensure we have an actor id (create and persist if needed)
+  const ensureActor = () => {
+    if (adminName) return adminName
+    if (adminId) return adminId
+    if (adminActor) return adminActor
+    try {
+      let existing = localStorage.getItem("admin_actor")
+      if (existing) {
+        setAdminActor(existing)
+        return existing
+      }
+      // create a simple uuid using crypto if available
+      const id = (typeof crypto !== "undefined" && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`
+      try { localStorage.setItem("admin_actor", id) } catch (e) {}
+      setAdminActor(id)
+      return id
+    } catch (e) {
+      return null
+    }
+  }
+
+  // Helper to record admin audit events in Supabase including actor
+  const recordAdminAudit = async (action, details = {}) => {
+    try {
+      // ensure actor exists; prefer human-readable name when available
+      const actorCandidate = ensureActor()
+      const actor = adminName || actorCandidate || null
+      // attach admin info into details for easier querying
+      const detailsWithAdmin = {
+        ...details,
+        admin: { id: adminId || null, name: adminName || actorCandidate || null },
+      }
+      // Use RPC to insert audit row via a SECURITY DEFINER function (bypasses RLS safely)
+      const { error: rpcErr } = await supabase.rpc("insert_admin_audit", {
+        p_actor: actor,
+        p_action: action,
+        p_details: detailsWithAdmin,
+      })
+      if (rpcErr) {
+        // last-resort: try direct insert (may fail due to RLS)
+        await supabase.from("admin_audit").insert([{ actor, action, details: detailsWithAdmin }])
+      }
+    } catch (err) {
+      // non-fatal: ignore audit failures
+    }
+  }
+
   // Login handler
   const handleLogin = async (e) => {
     e.preventDefault()
   _setError("")
-    const { data, error: fetchError } = await supabase
-      .from("admin_passcode")
-      .select("code")
-      .single()
-    if (fetchError) {
-      showPopup("Error connecting to server.", "error")
-      return
-    }
-    if (data && input === data.code) {
+    // Authenticate against `admins` table by passcode and set admin identity
+    try {
+      const { data, error } = await supabase
+        .from("admins")
+        .select("id, name")
+        .eq("passcode", input)
+        .limit(1)
+        .single()
+      if (error || !data) {
+        showPopup("Incorrect passcode.", "error")
+        void recordAdminAudit("login_failed", { reason: "incorrect_passcode" })
+        return
+      }
+      // success
       setIsLoggedIn(true)
       setInput("")
+      setAdminId(data.id)
+      setAdminName(data.name || null)
       showPopup("Login successful!", "success")
-    } else {
-      showPopup("Incorrect passcode.", "error")
+      void recordAdminAudit("login", { success: true, admin: { id: data.id, name: data.name } })
+    } catch (err) {
+      showPopup("Error connecting to server.", "error")
+      void recordAdminAudit("login_failed", { reason: "server_error" })
     }
   }
 
@@ -85,11 +185,14 @@ export const AdminPage = () => {
         .eq("id", uuid)
       if (updateError) {
         showPopup("Failed to update message.", "error")
+        void recordAdminAudit("update_message_failed", { error: updateError.message || "unknown" })
       } else {
         showPopup("Message updated!", "success")
+        void recordAdminAudit("update_message", { message })
       }
     } else {
       showPopup("Could not find message row.", "error")
+      void recordAdminAudit("update_message_failed", { error: "no_message_row" })
     }
   }
 
@@ -102,8 +205,10 @@ export const AdminPage = () => {
       .insert([{ name: memberName, rank: memberRank }])
     if (error) {
       showPopup("Failed to add member.", "error")
+      void recordAdminAudit("add_member_failed", { name: memberName, rank: memberRank, error: error.message || "unknown" })
     } else {
       showPopup("Member added!", "success")
+      void recordAdminAudit("add_member", { name: memberName, rank: memberRank })
       setMemberName("")
       setMemberRank("")
       // Fetch updated members list
@@ -120,33 +225,80 @@ export const AdminPage = () => {
     setShowDeleteConfirm(true)
     setDeleteCode("")
   _setDeleteError("")
+    // record that a delete was initiated (who initiated will be the actor stored in admin_audit)
+    void recordAdminAudit("delete_member_initiated", { targetId: id })
+  }
+
+  // Edit member state
+  const [editingId, setEditingId] = useState(null)
+  const [editingName, setEditingName] = useState("")
+  const [editingRank, setEditingRank] = useState("")
+
+  const startEditMember = (member) => {
+    setEditingId(member.id)
+    setEditingName(member.name)
+    setEditingRank(member.rank)
+  }
+
+  const cancelEditMember = () => {
+    setEditingId(null)
+    setEditingName("")
+    setEditingRank("")
+  }
+
+  const saveEditMember = async (id) => {
+    const prev = members.find((m) => m.id === id)
+    if (!prev) return
+    const updated = { name: editingName, rank: editingRank }
+    const { error } = await supabase.from("memberlist").update(updated).eq("id", id)
+    if (error) {
+      showPopup("Failed to update member.", "error")
+      void recordAdminAudit("edit_member_failed", { id, prev, attempted: updated, error: error.message || "unknown" })
+    } else {
+      showPopup("Member updated!", "success")
+      // update local state
+      setMembers((cur) => cur.map((m) => (m.id === id ? { ...m, ...updated } : m)))
+      void recordAdminAudit("edit_member", { id, prev, next: updated })
+      cancelEditMember()
+    }
   }
 
   // Confirm delete handler
   const handleConfirmDelete = async (e) => {
     e.preventDefault()
   _setDeleteError("")
-    const { data, error: fetchError } = await supabase
-      .from("admin_passcode")
-      .select("code")
-      .single()
-    if (fetchError) {
+    // Verify the entered passcode matches an admin in `admins` table
+    try {
+      const { data, error } = await supabase
+        .from("admins")
+        .select("id, name")
+        .eq("passcode", deleteCode)
+        .limit(1)
+        .single()
+      if (error || !data) {
+        showPopup("Incorrect passcode.", "error")
+        void recordAdminAudit("delete_member_failed", { id: deleteTargetId, reason: "incorrect_passcode" })
+        return
+      }
+      // passcode verified; optionally could check that the current logged-in admin matches
+    } catch (err) {
       showPopup("Error connecting to server.", "error")
+      void recordAdminAudit("delete_member_failed", { id: deleteTargetId, reason: "fetch_passcode_error" })
       return
     }
-    if (!data || deleteCode !== data.code) {
-      showPopup("Incorrect passcode.", "error")
-      return
-    }
+    // capture target member details for audit
+    const targetMember = members.find((m) => m.id === deleteTargetId) || { id: deleteTargetId }
     const { error } = await supabase
       .from("memberlist")
       .delete()
       .eq("id", deleteTargetId)
     if (error) {
       showPopup("Failed to delete member.", "error")
+      void recordAdminAudit("delete_member_failed", { id: deleteTargetId, error: error.message || "unknown" })
     } else {
       showPopup("Member deleted!", "success")
       setMembers(members.filter((m) => m.id !== deleteTargetId))
+      void recordAdminAudit("delete_member", { target: targetMember })
     }
     setShowDeleteConfirm(false)
     setDeleteTargetId(null)
@@ -160,6 +312,7 @@ export const AdminPage = () => {
     setDeleteTargetId(null)
     setDeleteCode("")
     _setDeleteError("")
+    void recordAdminAudit("delete_member_cancelled", {})
   }
 
   if (!isLoggedIn) {
@@ -194,6 +347,52 @@ export const AdminPage = () => {
   return (
     <div className="admin-container">
       <h1 className="admin-title">Admin Page</h1>
+      {/* Carousel page toggles */}
+      <div style={{ marginBottom: "1.25rem" }}>
+        <h3 style={{ margin: "0 0 0.5rem 0" }}>Carousel Pages</h3>
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          {Object.keys(defaultCarouselConfig).map((key) => (
+            <label key={key} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <input
+                type="checkbox"
+                checked={!!carouselConfig[key]}
+                onChange={async (e) => {
+                  const next = { ...carouselConfig, [key]: e.target.checked }
+                  setCarouselConfig(next)
+                  // try saving to Supabase
+                  try {
+                    if (carouselRowId) {
+                      const { error } = await supabase
+                        .from("carousel_settings")
+                        .update({ config: next, updated_at: new Date().toISOString() })
+                        .eq("id", carouselRowId)
+                      if (error) throw error
+                    } else {
+                      const { data, error } = await supabase
+                        .from("carousel_settings")
+                        .insert([{ config: next }])
+                      if (error) throw error
+                      // store the id for future updates
+                      if (data && data[0] && data[0].id) setCarouselRowId(data[0].id)
+                    }
+                    // notify carousel to update (for clients without realtime)
+                    window.dispatchEvent(new Event("carouselPagesChanged"))
+                    setPopup({ show: true, message: "Carousel updated", type: "success" })
+                    setTimeout(() => setPopup({ show: false, message: "", type: "" }), 1500)
+                    // record admin-level audit for carousel change
+                    void recordAdminAudit("update_carousel", { config: next })
+                  } catch (err) {
+                    // Supabase failed — notify user
+                    setPopup({ show: true, message: "Failed to save", type: "error" })
+                    setTimeout(() => setPopup({ show: false, message: "", type: "" }), 2000)
+                  }
+                }}
+              />
+              <span style={{ textTransform: "capitalize" }}>{key.replace(/([A-Z])/g, " $1")}</span>
+            </label>
+          ))}
+        </div>
+      </div>
       {/* Scrolling Message Update */}
       <form onSubmit={handleMessageSubmit} className="admin-form">
         <label htmlFor="scrolling-message">Update Scrolling Message:</label>
@@ -238,35 +437,86 @@ export const AdminPage = () => {
               })
               .map((member) => (
                 <tr key={member.id}>
-                  <td>{member.name}</td>
                   <td>
-                    <span
-                      style={{
-                        background: rankColors[member.rank]?.background,
-                        color: rankColors[member.rank]?.color,
-                        padding: "2px 8px",
-                        borderRadius: "0.3em",
-                        fontWeight: 600,
-                        fontFamily: '"BebasNeue", Arial, sans-serif',
-                        letterSpacing: "2px",
-                      }}
-                    >
-                      {member.rank.replace(/([A-Z])/g, " $1").trim()}
-                    </span>
+                    {editingId === member.id ? (
+                      <input
+                        className="admin-input"
+                        value={editingName}
+                        onChange={(e) => setEditingName(e.target.value)}
+                      />
+                    ) : (
+                      member.name
+                    )}
                   </td>
                   <td>
-                    <button
-                      className="admin-button"
-                      style={{
-                        background: "#ce2029",
-                        color: "#fff",
-                        minWidth: 60,
-                        padding: "0.3rem 0.8rem",
-                      }}
-                      onClick={() => handleDeleteClick(member.id)}
-                    >
-                      Delete
-                    </button>
+                    {editingId === member.id ? (
+                      <select
+                        className="admin-input"
+                        value={editingRank}
+                        onChange={(e) => setEditingRank(e.target.value)}
+                      >
+                        <option value="">Select rank</option>
+                        {Object.keys(rankColors).map((r) => (
+                          <option key={r} value={r}>
+                            {r.replace(/([A-Z])/g, " $1").trim()}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <span
+                        style={{
+                          background: rankColors[member.rank]?.background,
+                          color: rankColors[member.rank]?.color,
+                          padding: "2px 8px",
+                          borderRadius: "0.3em",
+                          fontWeight: 600,
+                          fontFamily: '"BebasNeue", Arial, sans-serif',
+                          letterSpacing: "2px",
+                        }}
+                      >
+                        {member.rank.replace(/([A-Z])/g, " $1").trim()}
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    {editingId === member.id ? (
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <button
+                          className="admin-button"
+                          onClick={() => saveEditMember(member.id)}
+                        >
+                          Save
+                        </button>
+                        <button
+                          className="admin-button"
+                          onClick={() => cancelEditMember()}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <button
+                          className="admin-button"
+                          onClick={() => startEditMember(member)}
+                          style={{ minWidth: 60 }}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="admin-button"
+                          style={{
+                            background: "#ce2029",
+                            color: "#fff",
+                            minWidth: 60,
+                            padding: "0.3rem 0.8rem",
+                          }}
+                          onClick={() => handleDeleteClick(member.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}

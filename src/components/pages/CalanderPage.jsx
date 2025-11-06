@@ -87,7 +87,7 @@ export const CalanderPage = () => {
         events={events}
         startAccessor="start"
         endAccessor="end"
-        style={{ height: "100vh", width: "100vw" }}
+        style={{ height: "100%", width: "100%" }}
         popup
         views={["month"]}
         defaultView="month"

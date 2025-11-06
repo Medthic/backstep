@@ -9,7 +9,8 @@
   flex-direction: column;
   background: #222;
   box-sizing: border-box;
-  padding: 0;
+  /* shared horizontal padding so toolbar and grid align */
+  padding: 0 1rem;
   margin: 0;
   overflow: hidden;
 }
@@ -24,18 +25,21 @@
   color: #fff;
   font-family: "Segoe UI", "Roboto", Arial, sans-serif;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* Toolbar styles */
 .rbc-toolbar {
   background: #23272f;
   color: #fff;
-  padding: 1rem 2rem 0.5rem 2rem;
+  /* horizontal padding provided by container; keep only vertical spacing */
+  padding: 1rem 0 0.5rem 0;
   font-size: 1.5rem;
   font-weight: 500;
   border-bottom: 1px solid #333;
   border-radius: 0.5rem 0.5rem 0 0;
   font-family: "bebas-neue", sans-serif;
+  box-sizing: border-box;
 }
 
 /* Hide the default button group if you want a cleaner look */
@@ -76,17 +80,35 @@
   border-radius: 0;
 }
 
-.rbc-header {
+ .rbc-header {
   color: #b8b8b8;
   font-weight: 600;
   font-size: 1.1rem;
   border-bottom: 1px solid #333;
-  padding: 0.5rem 0;
+  /* reset horizontal padding so header lines up with date cells */
+  padding: 0.5rem 0 0.5rem 0;
+  box-sizing: border-box;
 }
 
 .rbc-date-cell {
   color: #b8b8b8;
 }
+
+/* Ensure date cells have no unexpected horizontal padding/margin */
+.rbc-date-cell,
+.rbc-day-bg,
+.rbc-row-content,
+.rbc-month-row {
+  padding-left: 0;
+  padding-right: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Nudge headers by 1px to compensate for subtle rounding/anti-alias differences
+   across browsers and DPI scaling. This is a minimal, low-risk visual fix. */
+/* No header transform — subtle 1px differences are due to rounding/antialiasing across browsers.
+   Attempts to nudge headers gave mixed results; leaving no transform keeps visuals stable. */
 
 .rbc-selected-cell {
   background: #2a2e38 !important;
@@ -128,3 +150,5 @@
   border-radius: 0.5rem;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.2);
 }
+
+/* debug outlines and toggle button removed */

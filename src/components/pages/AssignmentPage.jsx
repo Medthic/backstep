@@ -6,7 +6,8 @@ import "./AssignmentPage.css"
 export const AssignmentPage = () => {
   // Box names and positions
   const boxNames = [
-    "Engine",
+    "Engine 41",
+    "Engine 42",
     "Truck",
     "Rescue",
     "Ambulance 47",
@@ -14,7 +15,8 @@ export const AssignmentPage = () => {
     "Ambulance 49",
   ]
   const boxPositions = [
-    ["CHAUFFEUR", "OFFICER", "NOZZLE", "LAYOUT", "FORCIBLE ENTRY", "BACKUP"], // Engine
+    ["CHAUFFEUR", "OFFICER", "NOZZLE", "LAYOUT", "FORCIBLE ENTRY", "BACKUP"], // Engine 41
+    ["CHAUFFEUR", "OFFICER", "NOZZLE", "LAYOUT", "FORCIBLE ENTRY", "BACKUP"], // Engine 42 (same positions)
     ["CHAUFFEUR", "OFFICER", "OVM", "IRONS", "ROOF", "CAN"], // Truck
     ["CHAUFFEUR", "OFFICER", "SAFETY", "TOOL", "CRIB", "CRIB"], // Rescue
     ["STAFF", "STAFF"], // Ambulance 47
@@ -69,7 +71,7 @@ export const AssignmentPage = () => {
   return (
     <div className="carousel-page assignment-grid ambulance-layout">
       {/* Main apparatus side by side */}
-      {boxNames.slice(0, 3).map((name, boxIdx) => (
+      {boxNames.slice(0, 4).map((name, boxIdx) => (
         <div className="assignment-box" key={boxIdx}>
           <h3>{name}</h3>
           {boxPositions[boxIdx].map((pos, ddIdx) => {
@@ -114,12 +116,12 @@ export const AssignmentPage = () => {
       ))}
       {/* Ambulance boxes stacked vertically */}
       <div className="ambulance-stack">
-        {boxNames.slice(3).map((name, boxIdx) => (
-          <div className="assignment-box ambulance-box" key={boxIdx + 3}>
+        {boxNames.slice(4).map((name, boxIdx) => (
+          <div className="assignment-box ambulance-box" key={boxIdx + 4}>
             <h3>{name}</h3>
-            {boxPositions[boxIdx + 3].map((pos, ddIdx) => {
+            {boxPositions[boxIdx + 4].map((pos, ddIdx) => {
               const assignment = assignments.find(
-                (a) => a.box === boxIdx + 3 && a.position === ddIdx
+                (a) => a.box === boxIdx + 4 && a.position === ddIdx
               )
               const member = assignment ? getMember(assignment.member_id) : null
               return (

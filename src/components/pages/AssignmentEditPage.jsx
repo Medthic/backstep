@@ -6,8 +6,12 @@ import "./AssignmentEditPage.css"
 
 // Constants
 const APPARATUS = {
-  ENGINE: {
-    name: "Engine",
+  ENGINE_41: {
+    name: "Engine 41",
+    positions: ["Driver", "Officer", "Nozzle", "Backup", "Bar", "Layout"],
+  },
+  ENGINE_42: {
+    name: "Engine 42",
     positions: ["Driver", "Officer", "Nozzle", "Backup", "Bar", "Layout"],
   },
   TRUCK: {
@@ -154,10 +158,10 @@ export const AssignmentEditPage = () => {
         <div className="ambulance-stack">
           {AMBULANCES.map(({ name, positions }, idx) => (
             <AssignmentBox
-              key={idx + 3}
+              key={idx + 4}
               name={name}
               positions={positions}
-              boxIdx={idx + 3}
+              boxIdx={idx + 4}
               onAssign={handleAssignment}
               memberOptions={memberOptions}
               saving={saving}

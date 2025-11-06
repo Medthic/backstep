@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { AssignmentPage } from "./Pages/AssignmentPage";
+import { AssignmentPage } from "./pages/AssignmentPage";
 import { CalanderPage } from "./pages/CalanderPage";
 import Information from "./pages/Information";
 import "./PageCarousel.css";

@@ -1,0 +1,7 @@
+{
+  // Recommended extensions for working on this repository
+  "recommendations": [
+    "tailwindlabs.tailwindcss-intellisense",
+    "csstools.postcss"
+  ]
+}

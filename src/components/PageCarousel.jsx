@@ -15,9 +15,13 @@ const allPages = [
 export const PageCarousel = () => {
   const [index, setIndex] = useState(0);
   const [sliding, setSliding] = useState(false);
-  const [direction, setDirection] = useState("right");
   const [pages, setPages] = useState(allPages.map((p) => p.node));
   const timeoutRef = useRef(null);
+  const slideTimeoutRef = useRef(null);
+
+  // animation timing (ms)
+  const ANIM_DURATION = 700;
+  const INTERVAL = 10000;
 
   // Build pages from a config object { assignment: boolean, calendar: boolean, information: boolean }
   const buildPagesFromConfig = (config) => {
@@ -32,7 +36,9 @@ export const PageCarousel = () => {
     // Load config from Supabase (strict Supabase-only behavior). If no config exists
     // we'll fall back to sensible defaults (all pages) but we do NOT use localStorage.
     let channel = null
-    const fetchConfig = async () => {
+
+    // declare fetchConfig as a function so it's available to the handler/cleanup
+    async function fetchConfig() {
       try {
         const { data, error } = await supabase.from("carousel_settings").select("config").limit(1).single()
         if (!error && data && data.config) {
@@ -41,7 +47,7 @@ export const PageCarousel = () => {
           // no config row yet — use defaults (all pages)
           setPages(allPages.map((p) => p.node))
         }
-      } catch (e) {
+      } catch {
         // on error (network etc) use defaults so UI still works
         setPages(allPages.map((p) => p.node))
       }
@@ -73,35 +79,74 @@ export const PageCarousel = () => {
             }
           )
           .subscribe()
-      } catch (e) {
+      } catch {
         // ignore subscription errors; realtime might not be enabled
       }
     }
 
+    // Also listen for the custom event dispatched by the admin UI for clients
+    // that don't have realtime enabled; re-run fetchConfig when triggered.
+    const handleCarouselChanged = () => {
+      try {
+        fetchConfig()
+      } catch {
+        /* ignore */
+      }
+    }
+
     fetchConfig()
+    window.addEventListener("carouselPagesChanged", handleCarouselChanged)
 
     return () => {
       if (channel) supabase.removeChannel(channel)
+      window.removeEventListener("carouselPagesChanged", handleCarouselChanged)
     }
   }, [])
 
   useEffect(() => {
-    // auto advance using current pages length
-    timeoutRef.current = setTimeout(() => {
-      setDirection("right");
-      setSliding(true);
-      setTimeout(() => {
-        setIndex((i) => (i + 1) % pages.length);
-        setSliding(false);
-      }, 500); // match CSS transition duration
-    }, 10000);
-    return () => clearTimeout(timeoutRef.current);
+  // auto advance using current pages length
+    const start = () => {
+      timeoutRef.current = setTimeout(() => {
+  if (pages.length <= 1) return;
+        setSliding(true);
+        // after animation completes, update index and stop sliding
+        slideTimeoutRef.current = setTimeout(() => {
+          setIndex((i) => (i + 1) % pages.length);
+          setSliding(false);
+        }, ANIM_DURATION);
+      }, INTERVAL);
+    };
+
+    start();
+
+    return () => {
+      clearTimeout(timeoutRef.current);
+      clearTimeout(slideTimeoutRef.current);
+    };
   }, [index, pages]);
 
+  // compute the next index for rendering the incoming page during a slide
+  const nextIndex = (index + 1) % pages.length;
+
+  // Note: intentionally do not pause on mouse hover. Carousel will continue
+  // auto-advancing regardless of pointer presence.
+
   return (
-    <div className="carousel">
-      <div className={`carousel-content slide-${sliding ? direction : "none"}`}>
-        {pages[index]}
+  <div className="carousel">
+      <div className="carousel-track">
+        {/* Keep all pages mounted to avoid remount/data reload flicker. Toggle classes for animation. */}
+        {pages.map((p, i) => {
+          const isActive = i === index && !sliding;
+          const isOutgoing = sliding && i === index;
+          const isIncoming = sliding && i === nextIndex;
+          const hidden = !isActive && !isOutgoing && !isIncoming;
+          const className = ["carousel-page", isActive ? "active" : "", isOutgoing ? "outgoing" : "", isIncoming ? "incoming" : "", hidden ? "hidden" : ""].join(" ").trim();
+          return (
+            <div className={className} key={`page-${i}`}>
+              {p}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

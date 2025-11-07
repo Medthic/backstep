@@ -61,6 +61,71 @@ html,
   cursor: pointer;
 }
 
+/* Custom switch styling for better UX */
+.carousel-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.carousel-toggle .carousel-checkbox {
+  /* hide native checkbox but keep it keyboard-focusable */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.carousel-toggle .carousel-slider {
+  width: 46px;
+  height: 26px;
+  background: #555;
+  border-radius: 999px;
+  position: relative;
+  transition: background 0.18s ease;
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.carousel-toggle .carousel-slider::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.18s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.carousel-toggle .carousel-checkbox:focus + .carousel-slider {
+  box-shadow: 0 0 0 3px rgba(56,176,0,0.15), inset 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.carousel-toggle .carousel-checkbox:checked + .carousel-slider {
+  background: #38b000;
+}
+
+.carousel-toggle .carousel-checkbox:checked + .carousel-slider::after {
+  transform: translateX(20px);
+}
+
+.carousel-label {
+  text-transform: capitalize;
+  font-size: 1rem;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
 .admin-input {
   font-size: 1.5rem;
   padding: 0.5rem;

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import Select from "react-select"
 import { supabase } from "../../lib/supabase"
 import { rankColors } from "../rankColors"
@@ -44,10 +44,31 @@ const AssignmentSelect = ({ value, onChange, options, isDisabled }) => (
         ...provided,
         color: "#222",
         backgroundColor: state.data.color,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
       }),
       singleValue: (provided) => ({
         ...provided,
         color: "#222",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        maxWidth: "100%",
+      }),
+      valueContainer: (provided) => ({
+        ...provided,
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }),
+      menu: (provided) => ({
+        ...provided,
+        zIndex: 9999,
+      }),
+      menuList: (provided) => ({
+        ...provided,
+        maxHeight: "220px",
       }),
     }}
   />
@@ -59,7 +80,7 @@ const AssignmentBox = ({
   boxIdx,
   onAssign,
   memberOptions,
-  saving,
+  savingMap,
   getAssignment,
 }) => (
   <div className="assignment-box">
@@ -71,7 +92,7 @@ const AssignmentBox = ({
           value={getAssignment(boxIdx, posIdx)}
           onChange={(value) => onAssign(boxIdx, posIdx, value)}
           options={memberOptions}
-          isDisabled={saving}
+          isDisabled={!!savingMap[`${boxIdx}-${posIdx}`]}
         />
       </div>
     ))}
@@ -81,7 +102,7 @@ const AssignmentBox = ({
 export const AssignmentEditPage = () => {
   const [assignments, setAssignments] = useState([])
   const [members, setMembers] = useState([])
-  const [saving, setSaving] = useState(false)
+  const [savingMap, setSavingMap] = useState({})
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,20 +114,63 @@ export const AssignmentEditPage = () => {
       setMembers(membersData.data || [])
     }
     fetchData()
+
+    // Subscribe to realtime assignment updates so UI stays live without full reloads
+    let channel = null
+    try {
+      channel = supabase
+        .channel("realtime:assignments")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "assignments" },
+          (payload) => {
+            const { eventType } = payload
+            if (eventType === "INSERT" || eventType === "UPDATE") {
+              const row = payload.new
+              setAssignments((prev) => {
+                const filtered = prev.filter(
+                  (a) => !(a.box === row.box && a.position === row.position)
+                )
+                return [
+                  ...filtered,
+                  { box: row.box, position: row.position, member_id: row.member_id },
+                ]
+              })
+            } else if (eventType === "DELETE") {
+              const row = payload.old
+              setAssignments((prev) =>
+                prev.filter((a) => !(a.box === row.box && a.position === row.position))
+              )
+            }
+          }
+        )
+        .subscribe()
+    } catch {
+      // ignore
+    }
+
+    return () => {
+      if (channel) supabase.removeChannel(channel)
+    }
   }, [])
 
-  const memberOptions = members.map((m) => ({
-    value: m.id,
-    label: `${m.name} (${m.rank})`,
-    color: rankColors[m.rank]?.background || "#fff",
-  }))
+  const memberOptions = useMemo(
+    () =>
+      members.map((m) => ({
+        value: m.id,
+        label: `${m.name} (${m.rank})`,
+        color: rankColors[m.rank]?.background || "#fff",
+      })),
+    [members]
+  )
 
   const getAssignment = (boxIdx, posIdx) =>
     assignments.find((a) => a.box === boxIdx && a.position === posIdx)
       ?.member_id || ""
 
   const handleAssignment = async (boxIdx, posIdx, memberId) => {
-    setSaving(true)
+    const key = `${boxIdx}-${posIdx}`
+    setSavingMap((m) => ({ ...m, [key]: true }))
     try {
       if (memberId === null) {
         await supabase
@@ -126,15 +190,19 @@ export const AssignmentEditPage = () => {
           },
           { onConflict: ["box", "position"] }
         )
-        setAssignments((prev) => [
-          ...prev.filter((a) => !(a.box === boxIdx && a.position === posIdx)),
-          { box: boxIdx, position: posIdx, member_id: memberId },
-        ])
+        setAssignments((prev) => {
+          const filtered = prev.filter((a) => !(a.box === boxIdx && a.position === posIdx))
+          return [...filtered, { box: boxIdx, position: posIdx, member_id: memberId }]
+        })
       }
     } catch (error) {
       console.error("Error updating assignment:", error)
     }
-    setSaving(false)
+    setSavingMap((m) => {
+      const copy = { ...m }
+      delete copy[key]
+      return copy
+    })
   }
 
   return (
@@ -149,7 +217,7 @@ export const AssignmentEditPage = () => {
             boxIdx={idx}
             onAssign={handleAssignment}
             memberOptions={memberOptions}
-            saving={saving}
+            savingMap={savingMap}
             getAssignment={getAssignment}
           />
         ))}
@@ -164,7 +232,7 @@ export const AssignmentEditPage = () => {
               boxIdx={idx + 4}
               onAssign={handleAssignment}
               memberOptions={memberOptions}
-              saving={saving}
+              savingMap={savingMap}
               getAssignment={getAssignment}
               className="ambulance-box"
             />

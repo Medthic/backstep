@@ -24,7 +24,7 @@ export const AdminPage = () => {
   const [adminActor, setAdminActor] = useState(() => {
     try {
       return localStorage.getItem("admin_actor") || null
-    } catch (e) {
+    } catch {
       return null
     }
   })
@@ -74,7 +74,7 @@ export const AdminPage = () => {
           // no row yet — keep defaults until a row is created
           setCarouselConfig(defaultCarouselConfig)
         }
-      } catch (e) {
+      } catch {
         // on error, keep defaults and notify admin
         setCarouselConfig(defaultCarouselConfig)
         showPopup("Could not load carousel settings from server", "error")
@@ -104,10 +104,10 @@ export const AdminPage = () => {
       const id = (typeof crypto !== "undefined" && crypto.randomUUID)
         ? crypto.randomUUID()
         : `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`
-      try { localStorage.setItem("admin_actor", id) } catch (e) {}
+  try { localStorage.setItem("admin_actor", id) } catch { /* ignore */ }
       setAdminActor(id)
       return id
-    } catch (e) {
+    } catch {
       return null
     }
   }
@@ -133,7 +133,7 @@ export const AdminPage = () => {
         // last-resort: try direct insert (may fail due to RLS)
         await supabase.from("admin_audit").insert([{ actor, action, details: detailsWithAdmin }])
       }
-    } catch (err) {
+    } catch {
       // non-fatal: ignore audit failures
     }
   }
@@ -162,7 +162,7 @@ export const AdminPage = () => {
       setAdminName(data.name || null)
       showPopup("Login successful!", "success")
       void recordAdminAudit("login", { success: true, admin: { id: data.id, name: data.name } })
-    } catch (err) {
+    } catch {
       showPopup("Error connecting to server.", "error")
       void recordAdminAudit("login_failed", { reason: "server_error" })
     }
@@ -281,7 +281,7 @@ export const AdminPage = () => {
         return
       }
       // passcode verified; optionally could check that the current logged-in admin matches
-    } catch (err) {
+    } catch {
       showPopup("Error connecting to server.", "error")
       void recordAdminAudit("delete_member_failed", { id: deleteTargetId, reason: "fetch_passcode_error" })
       return
@@ -348,13 +348,14 @@ export const AdminPage = () => {
     <div className="admin-container">
       <h1 className="admin-title">Admin Page</h1>
       {/* Carousel page toggles */}
-      <div style={{ marginBottom: "1.25rem" }}>
-        <h3 style={{ margin: "0 0 0.5rem 0" }}>Carousel Pages</h3>
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+      <div className="carousel-settings">
+        <h3 className="carousel-title">Carousel Pages</h3>
+        <div className="carousel-toggle-row">
           {Object.keys(defaultCarouselConfig).map((key) => (
-            <label key={key} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <label key={key} className="carousel-toggle">
               <input
                 type="checkbox"
+                className="carousel-checkbox"
                 checked={!!carouselConfig[key]}
                 onChange={async (e) => {
                   const next = { ...carouselConfig, [key]: e.target.checked }
@@ -362,18 +363,48 @@ export const AdminPage = () => {
                   // try saving to Supabase
                   try {
                     if (carouselRowId) {
-                      const { error } = await supabase
+                      // request the updated row back with .select() so we can inspect results
+                      const { data, error } = await supabase
                         .from("carousel_settings")
                         .update({ config: next, updated_at: new Date().toISOString() })
                         .eq("id", carouselRowId)
+                        .select()
                       if (error) throw error
+                      // Some RLS/policy setups allow the write but prevent returning rows.
+                      // Treat an empty array as a successful write (no error) but log it for debugging.
+                      if (!data || (Array.isArray(data) && data.length === 0)) {
+                        console.warn("carousel_settings update returned no rows but update succeeded")
+                      } else {
+                        console.log("carousel_settings update result:", data)
+                      }
                     } else {
+                      // ask Supabase to return the inserted row so we can capture its id
                       const { data, error } = await supabase
                         .from("carousel_settings")
                         .insert([{ config: next }])
+                        .select()
                       if (error) throw error
+                      console.log("carousel_settings insert result:", data)
                       // store the id for future updates
-                      if (data && data[0] && data[0].id) setCarouselRowId(data[0].id)
+                      if (data && data[0] && data[0].id) {
+                        setCarouselRowId(data[0].id)
+                      } else {
+                        // if insert returned no row (RLS), try to fetch the single row id as a fallback
+                        try {
+                          const { data: fetched, error: fetchErr } = await supabase
+                            .from("carousel_settings")
+                            .select("id")
+                            .limit(1)
+                            .single()
+                          if (!fetchErr && fetched && fetched.id) {
+                            setCarouselRowId(fetched.id)
+                          } else if (fetchErr) {
+                            console.warn("Could not fetch carousel_settings id after insert:", fetchErr)
+                          }
+                        } catch (_e) {
+                          console.warn("Fallback fetch for carousel_settings id failed", _e)
+                        }
+                      }
                     }
                     // notify carousel to update (for clients without realtime)
                     window.dispatchEvent(new Event("carouselPagesChanged"))
@@ -381,14 +412,16 @@ export const AdminPage = () => {
                     setTimeout(() => setPopup({ show: false, message: "", type: "" }), 1500)
                     // record admin-level audit for carousel change
                     void recordAdminAudit("update_carousel", { config: next })
-                  } catch (err) {
-                    // Supabase failed — notify user
+                  } catch (_err) {
+                    // Supabase failed — notify user and log error for debugging
+                    console.error("Failed to save carousel settings", _err)
                     setPopup({ show: true, message: "Failed to save", type: "error" })
                     setTimeout(() => setPopup({ show: false, message: "", type: "" }), 2000)
                   }
                 }}
               />
-              <span style={{ textTransform: "capitalize" }}>{key.replace(/([A-Z])/g, " $1")}</span>
+              <span className="carousel-slider" aria-hidden="true" />
+              <span className="carousel-label">{key.replace(/([A-Z])/g, " $1").trim()}</span>
             </label>
           ))}
         </div>

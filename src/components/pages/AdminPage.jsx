@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import Select from "react-select"
 import { supabase } from "../../lib/supabase"
 import "./AdminPage.css"
-import { rankColors } from "../rankColors"
+import { rankColors, formatRankLabel } from "../rankColors"
 
 export const AdminPage = () => {
   const [input, setInput] = useState("")
@@ -42,9 +42,11 @@ export const AdminPage = () => {
   const [carouselRowId, setCarouselRowId] = useState(null)
 
   // Prepare options for react-select
+  
+
   const rankOptions = Object.keys(rankColors).map((rank) => ({
     value: rank,
-    label: rank.replace(/([A-Z])/g, " $1").trim(),
+    label: formatRankLabel(rank),
     color: rankColors[rank].background,
     textColor: rankColors[rank].color,
   }))
@@ -544,7 +546,7 @@ export const AdminPage = () => {
                       )}
                     </td>
                     <td data-label="Rank">
-                      {editingId === member.id ? (
+                          {editingId === member.id ? (
                         <select
                           className="admin-input"
                           value={editingRank}
@@ -554,7 +556,7 @@ export const AdminPage = () => {
                           <option value="">Select rank</option>
                           {Object.keys(rankColors).map((r) => (
                             <option key={r} value={r}>
-                              {r.replace(/([A-Z])/g, " $1").trim()}
+                                  {formatRankLabel(r)}
                             </option>
                           ))}
                         </select>
@@ -566,7 +568,7 @@ export const AdminPage = () => {
                             color: rankColors[member.rank]?.color,
                           }}
                         >
-                          {member.rank.replace(/([A-Z])/g, " $1").trim()}
+                          {formatRankLabel(member.rank)}
                         </span>
                       )}
                     </td>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { supabase } from "../../lib/supabase"
-import { rankColors } from "../rankColors"
+import { rankColors, formatRankLabel } from "../rankColors"
 import "./AssignmentPage.css"
 
 export const AssignmentPage = () => {
@@ -100,14 +100,14 @@ export const AssignmentPage = () => {
                       : undefined
                   }
                 >
-                  {member ? (
-                    <span>
-                      <span className="member-name">{member.name}</span>{" "}
-                      <span className="member-rank">{member.rank}</span>
-                    </span>
-                  ) : (
-                    <span>Unassigned</span>
-                  )}
+                    {member ? (
+                      <span>
+                        <span className="member-name">{member.name}</span>{" "}
+                        <span className="member-rank">{formatRankLabel(member.rank)}</span>
+                      </span>
+                    ) : (
+                      <span>Unassigned</span>
+                    )}
                 </div>
               </div>
             )
@@ -148,7 +148,7 @@ export const AssignmentPage = () => {
                     {member ? (
                       <span>
                         <span className="member-name">{member.name}</span>{" "}
-                        <span className="member-rank">{member.rank}</span>
+                        <span className="member-rank">{formatRankLabel(member.rank)}</span>
                       </span>
                     ) : (
                       <span>Unassigned</span>

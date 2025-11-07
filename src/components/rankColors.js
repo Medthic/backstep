@@ -12,3 +12,13 @@ export const rankColors = {
   PARAMEDIC: { background: "#8e7cc3", color: "#222" },
   // Add more as needed
 }
+export function formatRankLabel(rank) {
+  if (!rank) return ""
+  const up = String(rank).toUpperCase()
+  // Only split the two firefighter combinations explicitly. Do NOT split PARAMEDIC.
+  if (up === "FIREFIGHTEREMT") return "Firefighter | EMT"
+  if (up === "FIREFIGHTERMEDIC") return "Firefighter | MEDIC"
+
+  const lower = up.toLowerCase()
+  return lower.charAt(0).toUpperCase() + lower.slice(1)
+}

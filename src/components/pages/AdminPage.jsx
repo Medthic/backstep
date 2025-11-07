@@ -317,10 +317,12 @@ export const AdminPage = () => {
 
   if (!isLoggedIn) {
     return (
-      <div className="admin-container">
+      <div className="admin-container admin-login">
         <h1 className="admin-title">Admin Login</h1>
-        <form onSubmit={handleLogin} className="admin-form">
+        <form onSubmit={handleLogin} className="admin-form" aria-label="Admin login form">
+          <label htmlFor="admin-passcode" className="visually-hidden">Passcode</label>
           <input
+            id="admin-passcode"
             type="password"
             inputMode="numeric"
             pattern="\d{4}"
@@ -330,15 +332,11 @@ export const AdminPage = () => {
             placeholder="4-digit passcode"
             className="admin-input"
             required
+            aria-required="true"
           />
-          <button type="submit" className="admin-button">
-            Login
-          </button>
+          <button type="submit" className="admin-button" aria-label="Login">Login</button>
         </form>
-        {/* Popup for login errors */}
-        {popup.show && (
-          <div className={`admin-popup ${popup.type}`}>{popup.message}</div>
-        )}
+        {popup.show && <div className={`admin-popup ${popup.type}`}>{popup.message}</div>}
       </div>
     )
   }
@@ -346,337 +344,301 @@ export const AdminPage = () => {
   // Admin content after login
   return (
     <div className="admin-container">
-      <h1 className="admin-title">Admin Page</h1>
-      {/* Carousel page toggles */}
-      <div className="carousel-settings">
-        <h3 className="carousel-title">Carousel Pages</h3>
-        <div className="carousel-toggle-row">
-          {Object.keys(defaultCarouselConfig).map((key) => (
-            <label key={key} className="carousel-toggle">
-              <input
-                type="checkbox"
-                className="carousel-checkbox"
-                checked={!!carouselConfig[key]}
-                onChange={async (e) => {
-                  const next = { ...carouselConfig, [key]: e.target.checked }
-                  setCarouselConfig(next)
-                  // try saving to Supabase
-                  try {
-                    if (carouselRowId) {
-                      // request the updated row back with .select() so we can inspect results
-                      const { data, error } = await supabase
-                        .from("carousel_settings")
-                        .update({ config: next, updated_at: new Date().toISOString() })
-                        .eq("id", carouselRowId)
-                        .select()
-                      if (error) throw error
-                      // Some RLS/policy setups allow the write but prevent returning rows.
-                      // Treat an empty array as a successful write (no error) but log it for debugging.
-                      if (!data || (Array.isArray(data) && data.length === 0)) {
-                        console.warn("carousel_settings update returned no rows but update succeeded")
+      <h1 className="admin-title">Admin Dashboard</h1>
+      <div className="admin-grid" aria-live="polite">
+  {/* Carousel Settings Card */}
+  <section className="admin-card carousel-card" aria-labelledby="carousel-heading">
+          <h2 id="carousel-heading" className="card-title">Carousel Pages</h2>
+          <div className="carousel-toggle-row">
+            {Object.keys(defaultCarouselConfig).map((key) => (
+              <label key={key} className="carousel-toggle">
+                <input
+                  type="checkbox"
+                  className="carousel-checkbox"
+                  checked={!!carouselConfig[key]}
+                  aria-checked={!!carouselConfig[key]}
+                  aria-label={`Toggle ${key.replace(/([A-Z])/g, " $1").trim()} page`}
+                  onChange={async (e) => {
+                    const next = { ...carouselConfig, [key]: e.target.checked }
+                    setCarouselConfig(next)
+                    try {
+                      if (carouselRowId) {
+                        const { data, error } = await supabase
+                          .from("carousel_settings")
+                          .update({ config: next, updated_at: new Date().toISOString() })
+                          .eq("id", carouselRowId)
+                          .select()
+                        if (error) throw error
+                        if (!data || (Array.isArray(data) && data.length === 0)) {
+                          console.warn("carousel_settings update returned no rows but update succeeded")
+                        }
                       } else {
-                        console.log("carousel_settings update result:", data)
-                      }
-                    } else {
-                      // ask Supabase to return the inserted row so we can capture its id
-                      const { data, error } = await supabase
-                        .from("carousel_settings")
-                        .insert([{ config: next }])
-                        .select()
-                      if (error) throw error
-                      console.log("carousel_settings insert result:", data)
-                      // store the id for future updates
-                      if (data && data[0] && data[0].id) {
-                        setCarouselRowId(data[0].id)
-                      } else {
-                        // if insert returned no row (RLS), try to fetch the single row id as a fallback
-                        try {
-                          const { data: fetched, error: fetchErr } = await supabase
-                            .from("carousel_settings")
-                            .select("id")
-                            .limit(1)
-                            .single()
-                          if (!fetchErr && fetched && fetched.id) {
-                            setCarouselRowId(fetched.id)
-                          } else if (fetchErr) {
-                            console.warn("Could not fetch carousel_settings id after insert:", fetchErr)
+                        const { data, error } = await supabase
+                          .from("carousel_settings")
+                          .insert([{ config: next }])
+                          .select()
+                        if (error) throw error
+                        if (data && data[0] && data[0].id) {
+                          setCarouselRowId(data[0].id)
+                        } else {
+                          try {
+                            const { data: fetched } = await supabase
+                              .from("carousel_settings")
+                              .select("id")
+                              .limit(1)
+                              .single()
+                            if (fetched?.id) setCarouselRowId(fetched.id)
+                          } catch (_e) {
+                            console.warn("Fallback fetch for carousel_settings id failed", _e)
                           }
-                        } catch (_e) {
-                          console.warn("Fallback fetch for carousel_settings id failed", _e)
                         }
                       }
+                      window.dispatchEvent(new Event("carouselPagesChanged"))
+                      showPopup("Carousel updated", "success", 1500)
+                      void recordAdminAudit("update_carousel", { config: next })
+                    } catch (_err) {
+                      console.error("Failed to save carousel settings", _err)
+                      showPopup("Failed to save", "error", 2000)
                     }
-                    // notify carousel to update (for clients without realtime)
-                    window.dispatchEvent(new Event("carouselPagesChanged"))
-                    setPopup({ show: true, message: "Carousel updated", type: "success" })
-                    setTimeout(() => setPopup({ show: false, message: "", type: "" }), 1500)
-                    // record admin-level audit for carousel change
-                    void recordAdminAudit("update_carousel", { config: next })
-                  } catch (_err) {
-                    // Supabase failed — notify user and log error for debugging
-                    console.error("Failed to save carousel settings", _err)
-                    setPopup({ show: true, message: "Failed to save", type: "error" })
-                    setTimeout(() => setPopup({ show: false, message: "", type: "" }), 2000)
-                  }
-                }}
-              />
-              <span className="carousel-slider" aria-hidden="true" />
-              <span className="carousel-label">{key.replace(/([A-Z])/g, " $1").trim()}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-      {/* Scrolling Message Update */}
-      <form onSubmit={handleMessageSubmit} className="admin-form">
-        <label htmlFor="scrolling-message">Update Scrolling Message:</label>
-        <input
-          id="scrolling-message"
-          className="admin-input"
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          placeholder="Enter new message"
-        />
-        <button type="submit" className="admin-button">
-          Update Message
-        </button>
-      </form>
-      {/* Popup for all alerts */}
-      {popup.show && (
-        <div className={`admin-popup ${popup.type}`}>{popup.message}</div>
-      )}
-      {/* Members Table */}
-      <div className="admin-table-container">
-        <h2 style={{ marginTop: "0.5rem", marginBottom: "1rem" }}>Members</h2>
-        <table className="admin-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Rank</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {members
-              .slice() // avoid mutating state
-              .sort((a, b) => {
-                const aIdx = rankOrder.indexOf(a.rank)
-                const bIdx = rankOrder.indexOf(b.rank)
-                // If rank not found, put at end
-                if (aIdx === -1 && bIdx === -1) return 0
-                if (aIdx === -1) return 1
-                if (bIdx === -1) return -1
-                return aIdx - bIdx
-              })
-              .map((member) => (
-                <tr key={member.id}>
-                  <td>
-                    {editingId === member.id ? (
-                      <input
-                        className="admin-input"
-                        value={editingName}
-                        onChange={(e) => setEditingName(e.target.value)}
-                      />
-                    ) : (
-                      member.name
-                    )}
-                  </td>
-                  <td>
-                    {editingId === member.id ? (
-                      <select
-                        className="admin-input"
-                        value={editingRank}
-                        onChange={(e) => setEditingRank(e.target.value)}
-                      >
-                        <option value="">Select rank</option>
-                        {Object.keys(rankColors).map((r) => (
-                          <option key={r} value={r}>
-                            {r.replace(/([A-Z])/g, " $1").trim()}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <span
-                        style={{
-                          background: rankColors[member.rank]?.background,
-                          color: rankColors[member.rank]?.color,
-                          padding: "2px 8px",
-                          borderRadius: "0.3em",
-                          fontWeight: 600,
-                          fontFamily: '"BebasNeue", Arial, sans-serif',
-                          letterSpacing: "2px",
-                        }}
-                      >
-                        {member.rank.replace(/([A-Z])/g, " $1").trim()}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {editingId === member.id ? (
-                      <div style={{ display: "flex", gap: "0.5rem" }}>
-                        <button
-                          className="admin-button"
-                          onClick={() => saveEditMember(member.id)}
-                        >
-                          Save
-                        </button>
-                        <button
-                          className="admin-button"
-                          onClick={() => cancelEditMember()}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <div style={{ display: "flex", gap: "0.5rem" }}>
-                        <button
-                          className="admin-button"
-                          onClick={() => startEditMember(member)}
-                          style={{ minWidth: 60 }}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="admin-button"
-                          style={{
-                            background: "#ce2029",
-                            color: "#fff",
-                            minWidth: 60,
-                            padding: "0.3rem 0.8rem",
-                          }}
-                          onClick={() => handleDeleteClick(member.id)}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            {/* Add Member Row */}
-            <tr>
-              <td>
-                <input
-                  className="admin-input"
-                  type="text"
-                  value={memberName}
-                  onChange={(e) => setMemberName(e.target.value)}
-                  placeholder="New member name"
-                  required
-                />
-              </td>
-              <td>
-                <Select
-                  className="member-select"
-                  options={rankOptions}
-                  value={
-                    rankOptions.find((opt) => opt.value === memberRank) || null
-                  }
-                  onChange={(opt) => setMemberRank(opt ? opt.value : "")}
-                  isClearable
-                  isSearchable
-                  placeholder="Select rank"
-                  menuPlacement="top"
-                  formatOptionLabel={(option) => (
-                    <span style={{ color: option.textColor, fontWeight: 600 }}>
-                      {option.label}
-                    </span>
-                  )}
-                  styles={{
-                    option: (provided, state) => ({
-                      ...provided,
-                      backgroundColor: state.data.color,
-                      color: state.data.textColor,
-                      fontFamily: '"BebasNeue", Arial, sans-serif',
-                      letterSpacing: "2px",
-                      fontWeight: 600,
-                    }),
-                    singleValue: (provided, state) => ({
-                      ...provided,
-                      color: state.data.textColor,
-                      backgroundColor: state.data.color,
-                      fontFamily: '"BebasNeue", Arial, sans-serif',
-                      letterSpacing: "2px",
-                      padding: "2px 8px",
-                      borderRadius: "0.3em",
-                      fontWeight: 600,
-                    }),
-                    control: (provided) => ({
-                      ...provided,
-                      backgroundColor: "#fff",
-                      color: "#222",
-                      border: "1px solid #444",
-                      fontFamily: '"BebasNeue", Arial, sans-serif',
-                      letterSpacing: "2px",
-                      minHeight: "40px",
-                    }),
-                    menu: (provided) => ({
-                      ...provided,
-                      backgroundColor: "#fff",
-                      color: "#222",
-                    }),
                   }}
                 />
-              </td>
-              <td>
-                <button
-                  className="admin-button"
-                  style={{ minWidth: 80 }}
-                  onClick={handleMemberSubmit}
-                  disabled={!memberName || !memberRank}
-                >
-                  Add
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      {/* Delete confirmation modal */}
-      {showDeleteConfirm && (
-        <div className="admin-modal-backdrop">
-          <div className="admin-modal">
-            <h3>Confirm Delete</h3>
-            <p>Enter your 4-digit passcode to confirm deletion:</p>
-            <form onSubmit={handleConfirmDelete}>
+                <span className="carousel-slider" aria-hidden="true" />
+                <span className="carousel-label">{key.replace(/([A-Z])/g, " $1").trim()}</span>
+              </label>
+            ))}
+          </div>
+        </section>
+  {/* Message Update Card */}
+  <section className="admin-card message-card" aria-labelledby="message-heading">
+          <h2 id="message-heading" className="card-title">Scrolling Message</h2>
+          <form onSubmit={handleMessageSubmit} className="stack-form" aria-label="Update scrolling message form">
+            <label htmlFor="scrolling-message" className="input-label">Message</label>
+            <input
+              id="scrolling-message"
+              className="admin-input"
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Enter new message"
+            />
+            <button type="submit" className="admin-button" aria-label="Update scrolling message">Update</button>
+          </form>
+        </section>
+  {/* Add Member Card */}
+  <section className="admin-card add-member-card" aria-labelledby="add-member-heading">
+          <h2 id="add-member-heading" className="card-title">Add Member</h2>
+          <form className="stack-form add-member-form" onSubmit={handleMemberSubmit} aria-label="Add member form">
+            <div className="field name-field">
+              <label htmlFor="new-member-name" className="input-label">Name</label>
               <input
+                id="new-member-name"
+                className="admin-input"
+                type="text"
+                value={memberName}
+                onChange={(e) => setMemberName(e.target.value)}
+                placeholder="New member name"
+                required
+              />
+            </div>
+            <div className="field rank-field">
+              <label htmlFor="new-member-rank" className="input-label">Rank</label>
+              <Select
+                inputId="new-member-rank"
+                className="member-select"
+                options={rankOptions}
+                value={rankOptions.find((opt) => opt.value === memberRank) || null}
+                onChange={(opt) => setMemberRank(opt ? opt.value : "")}
+                isClearable
+                isSearchable
+                placeholder="Select rank"
+                menuPlacement="auto"
+                formatOptionLabel={(option) => (
+                  <span style={{ color: option.textColor, fontWeight: 600 }}>
+                    {option.label}
+                  </span>
+                )}
+                styles={{
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.data.color,
+                    color: state.data.textColor,
+                    fontFamily: '"BebasNeue", Arial, sans-serif',
+                    letterSpacing: "2px",
+                    fontWeight: 600,
+                  }),
+                  singleValue: (provided, state) => ({
+                    ...provided,
+                    color: state.data.textColor,
+                    backgroundColor: state.data.color,
+                    fontFamily: '"BebasNeue", Arial, sans-serif',
+                    letterSpacing: "2px",
+                    padding: "2px 8px",
+                    borderRadius: "0.3em",
+                    fontWeight: 600,
+                  }),
+                  control: (provided) => ({
+                    ...provided,
+                    backgroundColor: "#fff",
+                    color: "#222",
+                    border: "1px solid #444",
+                    fontFamily: '"BebasNeue", Arial, sans-serif',
+                    letterSpacing: "2px",
+                    minHeight: "40px",
+                  }),
+                  menu: (provided) => ({
+                    ...provided,
+                    backgroundColor: "#fff",
+                    color: "#222",
+                  }),
+                }}
+              />
+            </div>
+            <div className="form-actions">
+              <button
+                type="submit"
+                className="admin-button"
+                disabled={!memberName || !memberRank}
+                aria-disabled={!memberName || !memberRank}
+              >
+                Add Member
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+      {/* Members Table */}
+      <section className="admin-table-wrapper admin-card" aria-labelledby="members-heading">
+        <h2 id="members-heading" className="card-title">Members</h2>
+        <div className="admin-table-container">
+          <table className="admin-table" aria-label="Members list">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Rank</th>
+                <th scope="col" aria-label="Actions" />
+              </tr>
+            </thead>
+            <tbody>
+              {members
+                .slice()
+                .sort((a, b) => {
+                  const aIdx = rankOrder.indexOf(a.rank)
+                  const bIdx = rankOrder.indexOf(b.rank)
+                  if (aIdx === -1 && bIdx === -1) return 0
+                  if (aIdx === -1) return 1
+                  if (bIdx === -1) return -1
+                  return aIdx - bIdx
+                })
+                .map((member) => (
+                  <tr key={member.id}>
+                    <td data-label="Name">
+                      {editingId === member.id ? (
+                        <input
+                          className="admin-input"
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          aria-label="Edit member name"
+                        />
+                      ) : (
+                        member.name
+                      )}
+                    </td>
+                    <td data-label="Rank">
+                      {editingId === member.id ? (
+                        <select
+                          className="admin-input"
+                          value={editingRank}
+                          onChange={(e) => setEditingRank(e.target.value)}
+                          aria-label="Edit member rank"
+                        >
+                          <option value="">Select rank</option>
+                          {Object.keys(rankColors).map((r) => (
+                            <option key={r} value={r}>
+                              {r.replace(/([A-Z])/g, " $1").trim()}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span
+                          className="rank-badge"
+                          style={{
+                            background: rankColors[member.rank]?.background,
+                            color: rankColors[member.rank]?.color,
+                          }}
+                        >
+                          {member.rank.replace(/([A-Z])/g, " $1").trim()}
+                        </span>
+                      )}
+                    </td>
+                    <td data-label="Actions">
+                      {editingId === member.id ? (
+                        <div className="action-group">
+                          <button
+                            className="admin-button sm" onClick={() => saveEditMember(member.id)} aria-label="Save member changes"
+                          >
+                            Save
+                          </button>
+                          <button
+                            className="admin-button sm" onClick={cancelEditMember} aria-label="Cancel member edit"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="action-group">
+                          <button
+                            className="admin-button sm"
+                            onClick={() => startEditMember(member)}
+                            style={{ minWidth: 60 }}
+                            aria-label={`Edit ${member.name}`}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="admin-button sm danger"
+                            onClick={() => handleDeleteClick(member.id)}
+                            aria-label={`Delete ${member.name}`}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      {showDeleteConfirm && (
+        <div className="admin-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-heading">
+          <div className="admin-modal">
+            <h3 id="delete-heading">Confirm Delete</h3>
+            <p>Enter your 4-digit passcode to confirm deletion:</p>
+            <form onSubmit={handleConfirmDelete} aria-label="Confirm delete member form">
+              <label htmlFor="delete-passcode" className="visually-hidden">Passcode</label>
+              <input
+                id="delete-passcode"
                 type="password"
                 inputMode="numeric"
                 pattern="\d{4}"
                 maxLength={4}
                 value={deleteCode}
-                onChange={(e) =>
-                  setDeleteCode(e.target.value.replace(/\D/g, ""))
-                }
+                onChange={(e) => setDeleteCode(e.target.value.replace(/\D/g, ""))}
                 className="admin-input"
                 placeholder="4-digit passcode"
                 required
                 autoFocus
               />
-              <div style={{ marginTop: "1rem", display: "flex", gap: "1rem" }}>
-                <button
-                  type="submit"
-                  className="admin-button"
-                  style={{ background: "#ce2029" }}
-                >
-                  Confirm Delete
-                </button>
-                <button
-                  type="button"
-                  className="admin-button"
-                  onClick={handleCancelDelete}
-                >
-                  Cancel
-                </button>
+              <div className="modal-actions">
+                <button type="submit" className="admin-button danger" aria-label="Confirm deletion">Confirm Delete</button>
+                <button type="button" className="admin-button" onClick={handleCancelDelete} aria-label="Cancel deletion">Cancel</button>
               </div>
             </form>
           </div>
         </div>
       )}
-      {/* Popup for all alerts */}
-      {popup.show && (
-        <div className={`admin-popup ${popup.type}`}>{popup.message}</div>
-      )}
+      {popup.show && <div className={`admin-popup ${popup.type}`}>{popup.message}</div>}
     </div>
   )
 }

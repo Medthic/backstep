@@ -33,15 +33,23 @@ export default function Information() {
   })
 
   useEffect(() => {
+    let mounted = true
     async function fetchAll() {
       const [departmentNews, runStats, toolsStatus] = await Promise.all([
         fetchSheet("DepartmentNews"),
         fetchSheet("RunStats"),
         fetchSheet("Status"),
       ])
-      setData({ departmentNews, runStats, toolsStatus })
+      if (mounted) setData({ departmentNews, runStats, toolsStatus })
     }
     fetchAll()
+    const id = setInterval(() => {
+      if (mounted) fetchAll()
+    }, 15000) // 15s
+    return () => {
+      mounted = false
+      clearInterval(id)
+    }
   }, [])
 
   const getStatusClass = (status) => {

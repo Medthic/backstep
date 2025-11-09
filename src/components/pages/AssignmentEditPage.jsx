@@ -33,42 +33,28 @@ const AMBULANCES = [47, 48, 49].map((num) => ({
 const AssignmentSelect = ({ value, onChange, options, isDisabled }) => (
   <Select
     className="member-select"
+    /* Ensure react-select internal classes use this prefix so your CSS selectors like
+       .member-select__menu or .member-select__option will apply even when the menu is portaled */
+    classNamePrefix="member-select"
     value={options.find((opt) => opt.value === value) || null}
     onChange={(opt) => onChange(opt?.value || null)}
     options={options}
+    /* Render the menu into document.body to avoid clipping by parent containers */
+    menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+    /* Use fixed positioning so the menu overlays the viewport and can appear above or below as needed */
+    menuPosition="fixed"
+    /* Let react-select choose the best placement (top or bottom) */
+    menuPlacement="auto"
+    /* Prevent automatic scrolling of the page when opening the menu */
+    menuShouldScrollIntoView={false}
     isClearable
     isSearchable
     isDisabled={isDisabled}
     styles={{
+      /* Keep only dynamic styles here: per-option background color depends on rank */
       option: (provided, state) => ({
         ...provided,
-        color: "#222",
-        backgroundColor: state.data.color,
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      }),
-      singleValue: (provided) => ({
-        ...provided,
-        color: "#222",
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        maxWidth: "100%",
-      }),
-      valueContainer: (provided) => ({
-        ...provided,
-        whiteSpace: "nowrap",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-      }),
-      menu: (provided) => ({
-        ...provided,
-        zIndex: 9999,
-      }),
-      menuList: (provided) => ({
-        ...provided,
-        maxHeight: "220px",
+        backgroundColor: state.data?.color || provided.backgroundColor,
       }),
     }}
   />

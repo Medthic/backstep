@@ -5,7 +5,7 @@ import { PageCarousel } from "./components/PageCarousel"
 import { AssignmentEditPage } from "./components/pages/AssignmentEditPage"
 import { AdminPage } from "./components/pages/AdminPage"
 import "./App.css"
-import CheckInDisplay from "./components/checkindisplay"
+import CheckInDisplay from "./components/CheckInDisplay"
 
 function App() {
   return (

@@ -6,7 +6,7 @@
   "homepage": "https://medthic.github.io/backstep/",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --debug",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",

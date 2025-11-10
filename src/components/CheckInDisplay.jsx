@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import "./checkindisplay.css";
+import "./CheckInDisplay.css";
 
 // Dummy fetch function, replace with your actual fetch logic (e.g., from Supabase or API)
 const fetchCheckedInMembers = async () => {

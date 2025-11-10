@@ -8,8 +8,10 @@ import "./App.css"
 import CheckInDisplay from "./components/CheckInDisplay"
 
 function App() {
+  const basename =
+    import.meta.env.VITE_DEPLOY_TARGET === "amplify" ? "/" : "/backstep";
   return (
-    <BrowserRouter basename="/backstep">
+    <BrowserRouter basename={basename}>
       <TopNavBar />
       <Routes>
         <Route

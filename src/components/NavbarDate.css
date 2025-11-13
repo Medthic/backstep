@@ -11,3 +11,12 @@
   display: inline-block;
   text-transform: uppercase;
 }
+
+@media (max-width: 768px) {
+  .nav-date {
+    font-size: 1.6rem;
+    letter-spacing: 2px;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
+}

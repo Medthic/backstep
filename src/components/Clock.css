@@ -26,3 +26,11 @@
   pointer-events: none;
   animation: blink 2s linear infinite;
 }
+
+@media (max-width: 768px) {
+  .clock {
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    min-width: 6.5rem;
+  }
+}

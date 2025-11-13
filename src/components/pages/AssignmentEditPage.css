@@ -28,6 +28,7 @@
   align-items: stretch;
   gap: 0.7rem;
   margin-bottom: 0;
+  padding: 0.8rem 1rem;
 }
 
 .ambulance-stack {
@@ -112,13 +113,15 @@
   .assignment-grid,
   .assignment-grid.ambulance-layout {
     flex-direction: column !important;
-    align-items: stretch !important;
+    align-items: stretch !importan;
     gap: 0.7rem !important;
     min-height: 100vh;
     padding-top: 4.5rem !important;
     padding-bottom: 1rem !important;
     padding-left: 0.2rem !important;
     padding-right: 0.2rem !important;
+    overflow-y: auto; /* Allow vertical scrolling */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
   .assignment-box,
   .ambulance-box {

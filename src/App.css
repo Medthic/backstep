@@ -44,5 +44,5 @@
 
 .main-content {
   margin-top: 4rem; /* Height of TopNavBar */
-  margin-bottom: 2.5rem; /* Height of SlidingMessage */
+  padding-bottom: 2.5rem; /* Height of SlidingMessage */
 }

@@ -8,19 +8,19 @@ import "./AssignmentEditPage.css"
 const APPARATUS = {
   ENGINE_41: {
     name: "Engine 41",
-    positions: ["Driver", "Officer", "Nozzle", "Backup", "Bar", "Layout"],
+    positions: ["CHAUFFEUR", "OFFICER", "NOZZLE", "LAYOUT", "FORCIBLE ENTRY", "BACKUP"],
   },
   ENGINE_42: {
     name: "Engine 42",
-    positions: ["Driver", "Officer", "Nozzle", "Backup", "Bar", "Layout"],
+    positions: ["CHAUFFEUR", "OFFICER", "NOZZLE", "LAYOUT", "FORCIBLE ENTRY", "BACKUP"],
   },
   TRUCK: {
     name: "Truck",
-    positions: ["Driver", "Officer", "OVM", "Roof", "Bar", "Can"],
+    positions: ["CHAUFFEUR", "OFFICER", "OVM", "IRONS", "ROOF", "CAN"],
   },
   RESCUE: {
     name: "Rescue",
-    positions: ["Driver", "Officer", "Safety", "Crib", "Crib", "Tool"],
+    positions: ["CHAUFFEUR", "OFFICER", "SAFETY", "TOOL", "CRIB", "CRIB"],
   },
 }
 

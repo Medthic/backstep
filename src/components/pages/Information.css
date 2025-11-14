@@ -198,7 +198,7 @@
   .info-full-container {
     flex-direction: column;
     gap: 0.5rem;
-    padding: 1rem 0;
+    padding: 1rem 0 2.25rem; /* add bottom buffer for mobile */
     width: 100vw;
     margin-left: calc(-50vw + 50%);
     margin-right: calc(-50vw + 50%);
@@ -218,6 +218,9 @@
   }
   .info-item {
     font-size: 1rem;
-    padding: 0.7rem;
+    padding: 0.8rem 0.7rem; /* small vertical increase so numbers have room */
+  }
+  .run-stats-grid {
+    padding-bottom: 1rem; /* bottom buffer so run stats don't sit flush to screen bottom */
   }
 }

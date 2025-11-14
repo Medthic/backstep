@@ -16,10 +16,14 @@ export const rankColors = {
   FIREFIGHTEREMT: { background: "#375365", color: "#dfddc4" },
   FIREFIGHTERMEDIC: { background: "#375365", color: "#dfddc4" },
   GREENSHIELD: { background: "#6bf178", color: "#222" },
+  GREENSHIELDEMT: { background: "#6bf178", color: "#222" },
+  GREENSHIELDMEDIC: { background: "#6bf178", color: "#222" },
   EMT: { background: "#2eccca", color: "#222" },
   AEMT: { background: "#4099ffff", color: "#222" },
   PARAMEDIC: { background: "#8e7cc3", color: "#222" },
   // Add more as needed
+  JUNIOR: { background: "#ffae17ff", color: "#222" },
+
 }
 
 export function formatRankLabel(rank) {

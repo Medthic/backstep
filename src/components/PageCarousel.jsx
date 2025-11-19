@@ -29,29 +29,14 @@ export const PageCarousel = () => {
   const ANIM_DURATION = 700;
   const INTERVAL = 10000;
 
-    // Build pages from a config object { assignment: boolean, calendar: boolean, information: boolean, slideUrl?: string }
-    // If `slide` is enabled but `slideUrl` is not provided, the slide page will be skipped.
-    const buildPagesFromConfig = (config) => {
-      if (!config) return allPages.map((p) => p.node);
-      // If slide enabled but no URL provided, ignore slide key so it won't be included
-      const keys = Object.keys(config).filter((k) => config[k]);
-      const enabledKeys = keys.filter((k) => !(k === "slide" && !(config && config.slideUrl)));
-
-      const filtered = allPages.filter((p) => enabledKeys.includes(p.key));
-
-      // Map pages to nodes, injecting dynamic slide src when present
-      const mapped = filtered.map((p) => {
-        if (p.key === "slide") {
-          const src = (config && config.slideUrl) || ""
-          return <GoogleSlidePage key="slide" src={src} />
-        }
-        return p.node
-      })
-
-      // if nothing enabled, fallback to all pages (use defaults)
-      if (mapped.length) return mapped
-      return allPages.map((p) => p.node)
-    };
+  // Build pages from a config object { assignment: boolean, calendar: boolean, information: boolean }
+  const buildPagesFromConfig = (config) => {
+    if (!config) return allPages.map((p) => p.node);
+    const enabledKeys = Object.keys(config).filter((k) => config[k]);
+    const filtered = allPages.filter((p) => enabledKeys.includes(p.key));
+    // if nothing enabled, fallback to all pages
+    return filtered.length ? filtered.map((p) => p.node) : allPages.map((p) => p.node);
+  };
 
   useEffect(() => {
     // Load config from Supabase (strict Supabase-only behavior). If no config exists

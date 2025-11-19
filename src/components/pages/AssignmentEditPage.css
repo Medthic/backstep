@@ -21,7 +21,7 @@
 .assignment-box {
   background: #333;
   border-radius: 1rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 12px #00000026;
   min-width: 300px;
   display: flex;
   flex-direction: column;

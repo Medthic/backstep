@@ -30,10 +30,9 @@
 
 :root {
   --sliding-height: 2rem;
-  /* sliding message height */
-  --sliding-height: 2rem;
-  /* set global InfoBar height to 60px */
-  --infobar-height: 50px;
+  /* slightly smaller than before so the InfoBar is less tall */
+  /* increase InfoBar height ~25% larger than sliding message */
+  --infobar-height: calc(var(--sliding-height) * 1.25);
 }
 
 @media (prefers-reduced-motion: no-preference) {

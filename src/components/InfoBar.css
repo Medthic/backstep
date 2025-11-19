@@ -4,14 +4,13 @@
   right: 0;
   bottom: var(--sliding-height);
   height: var(--infobar-height);
-  background: #333;
-  color: #fff;
+  background: transparent;
+  color: #ffffff;
   z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 0.5rem;
-  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.4);
+  padding: 0 0.75rem;
 }
 
 .info-bar-inner {
@@ -41,14 +40,24 @@
   gap: 0;
   height: calc(var(--infobar-height) - 0.5rem);
   padding: 0;
-  border-radius: 0.5rem;
+  border-radius: 0.65rem;
   background: #23272e;
   flex: 0 0 auto; /* don't stretch — keep containers compact and centered */
   min-width: 6.5rem; /* ensure a readable minimum size */
-  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.25);
-  transition: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 
+              0 1px 3px rgba(0, 0, 0, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
   overflow: hidden;
   box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.external-ambulance:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 
+              0 2px 5px rgba(0, 0, 0, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .external-ambulance__box {

@@ -20,7 +20,6 @@ export const AdminPage = () => {
   const [_deleteError, _setDeleteError] = useState("")
   const [_showMessagePopup, _setShowMessagePopup] = useState(false)
   const [popup, setPopup] = useState({ show: false, message: "", type: "" })
-  // Admin actor id stored in localStorage to identify the client making changes
   const [adminActor, setAdminActor] = useState(() => {
     try {
       return localStorage.getItem("admin_actor") || null
@@ -31,18 +30,19 @@ export const AdminPage = () => {
   const [adminId, setAdminId] = useState(null)
   const [adminName, setAdminName] = useState(null)
 
-  // Carousel pages configuration (Supabase-backed)
   const defaultCarouselConfig = {
     assignment: true,
     calendar: true,
     information: true,
+    slide: true,
   }
-  // store DB row id for carousel settings if present
   const [carouselConfig, setCarouselConfig] = useState(defaultCarouselConfig)
   const [carouselRowId, setCarouselRowId] = useState(null)
 
-  // Prepare options for react-select
-  
+  const EXTERNAL_AMBULANCES = [18, 19, 58, 59, 68, 69]
+  const [ambulanceStatuses, setAmbulanceStatuses] = useState({})
+  const [ambulanceSaving, setAmbulanceSaving] = useState({})
+  const saveTimers = React.useRef({})
 
   const rankOptions = Object.keys(rankColors).map((rank) => ({
     value: rank,
@@ -51,7 +51,6 @@ export const AdminPage = () => {
     textColor: rankColors[rank].color,
   }))
 
-  // Define the order of ranks for sorting
   const rankOrder = Object.keys(rankColors)
 
   useEffect(() => {
@@ -61,7 +60,6 @@ export const AdminPage = () => {
         .select("id, name, rank")
         .then(({ data }) => setMembers(data || []))
     }
-    // load carousel config from Supabase when admin page mounts / login state changes
     const fetchCarouselConfig = async () => {
       try {
         const { data, error } = await supabase
@@ -73,11 +71,9 @@ export const AdminPage = () => {
           setCarouselConfig(data.config)
           setCarouselRowId(data.id)
         } else {
-          // no row yet — keep defaults until a row is created
           setCarouselConfig(defaultCarouselConfig)
         }
       } catch {
-        // on error, keep defaults and notify admin
         setCarouselConfig(defaultCarouselConfig)
         showPopup("Could not load carousel settings from server", "error")
       }
@@ -85,13 +81,33 @@ export const AdminPage = () => {
     fetchCarouselConfig()
   }, [isLoggedIn, memberStatus])
 
-  // Helper to show popup
+  useEffect(() => {
+    if (!isLoggedIn) return
+    let mounted = true
+    const load = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("info_statuses")
+          .select("station, status")
+          .in("station", EXTERNAL_AMBULANCES)
+        if (error) throw error
+        if (!mounted) return
+        const map = {}
+        ;(data || []).forEach((r) => { map[r.station] = r.status })
+        setAmbulanceStatuses(map)
+      } catch (e) {
+        console.error("Failed to load ambulance statuses:", e)
+      }
+    }
+    load()
+    return () => { mounted = false }
+  }, [isLoggedIn])
+
   const showPopup = (message, type = "info", duration = 2000) => {
     setPopup({ show: true, message, type })
     setTimeout(() => setPopup({ show: false, message: "", type: "" }), duration)
   }
 
-  // Ensure we have an actor id (create and persist if needed)
   const ensureActor = () => {
     if (adminName) return adminName
     if (adminId) return adminId
@@ -102,7 +118,6 @@ export const AdminPage = () => {
         setAdminActor(existing)
         return existing
       }
-      // create a simple uuid using crypto if available
       const id = (typeof crypto !== "undefined" && crypto.randomUUID)
         ? crypto.randomUUID()
         : `anon-${Date.now()}-${Math.floor(Math.random() * 10000)}`
@@ -114,37 +129,30 @@ export const AdminPage = () => {
     }
   }
 
-  // Helper to record admin audit events in Supabase including actor
   const recordAdminAudit = async (action, details = {}) => {
     try {
-      // ensure actor exists; prefer human-readable name when available
       const actorCandidate = ensureActor()
       const actor = adminName || actorCandidate || null
-      // attach admin info into details for easier querying
       const detailsWithAdmin = {
         ...details,
         admin: { id: adminId || null, name: adminName || actorCandidate || null },
       }
-      // Use RPC to insert audit row via a SECURITY DEFINER function (bypasses RLS safely)
       const { error: rpcErr } = await supabase.rpc("insert_admin_audit", {
         p_actor: actor,
         p_action: action,
         p_details: detailsWithAdmin,
       })
       if (rpcErr) {
-        // last-resort: try direct insert (may fail due to RLS)
         await supabase.from("admin_audit").insert([{ actor, action, details: detailsWithAdmin }])
       }
     } catch {
-      // non-fatal: ignore audit failures
+      
     }
   }
 
-  // Login handler
   const handleLogin = async (e) => {
     e.preventDefault()
   _setError("")
-    // Authenticate against `admins` table by passcode and set admin identity
     try {
       const { data, error } = await supabase
         .from("admins")
@@ -157,7 +165,6 @@ export const AdminPage = () => {
         void recordAdminAudit("login_failed", { reason: "incorrect_passcode" })
         return
       }
-      // success
       setIsLoggedIn(true)
       setInput("")
       setAdminId(data.id)
@@ -262,6 +269,34 @@ export const AdminPage = () => {
       setMembers((cur) => cur.map((m) => (m.id === id ? { ...m, ...updated } : m)))
       void recordAdminAudit("edit_member", { id, prev, next: updated })
       cancelEditMember()
+    }
+  }
+
+  // Save a single external ambulance status (upsert into info_statuses)
+  const saveAmbulanceStatus = async (station, explicitStatus = undefined) => {
+    const status = explicitStatus !== undefined
+      ? (explicitStatus === "" ? null : explicitStatus)
+      : (ambulanceStatuses[station] || null)
+    try {
+      const payload = { station, status }
+      const { data, error } = await supabase
+        .from("info_statuses")
+        .upsert(payload, { returning: "representation" })
+      if (error) throw error
+      showPopup(`Saved status for ${station}`, "success", 1200)
+      void recordAdminAudit("update_external_ambulance_status", { station, status })
+      // notify local listeners immediately so UI can update instantly
+      try {
+        window.dispatchEvent(new CustomEvent("externalAmbulanceStatusChanged", { detail: { station, status } }))
+      } catch (_e) {
+        // ignore if window unavailable
+      }
+      return true
+    } catch (e) {
+      console.error("Failed to save ambulance status:", e)
+      showPopup("Failed to save status", "error", 2000)
+      void recordAdminAudit("update_external_ambulance_status_failed", { station, status, error: e.message || String(e) })
+      return false
     }
   }
 
@@ -507,6 +542,43 @@ export const AdminPage = () => {
             </div>
           </form>
         </section>
+  {/* External Ambulances Editor */}
+  <section className="admin-card ambulance-card" aria-labelledby="ambulance-heading">
+    <h2 id="ambulance-heading" className="card-title">External Ambulances</h2>
+    <div className="ambulance-list">
+      {EXTERNAL_AMBULANCES.map((st) => (
+        <div className="ambulance-row" key={st}>
+          <div className="ambulance-id">{st}</div>
+          <select
+            className="ambulance-select"
+            value={ambulanceStatuses[st] ?? ""}
+            onChange={(e) => {
+              const val = e.target.value
+              setAmbulanceStatuses((cur) => ({ ...cur, [st]: val }))
+              // debounce per-station saves (600ms)
+              if (saveTimers.current[st]) clearTimeout(saveTimers.current[st])
+              saveTimers.current[st] = setTimeout(async () => {
+                setAmbulanceSaving((s) => ({ ...s, [st]: true }))
+                await saveAmbulanceStatus(st, val)
+                setAmbulanceSaving((s) => ({ ...s, [st]: false }))
+                delete saveTimers.current[st]
+              }, 600)
+            }}
+            aria-label={`Status for ambulance ${st}`}
+            >
+            <option value="Medic">Medic</option>
+            <option value="Advanced">Advanced</option>
+            <option value="Ambulance">Ambulance</option>
+              <option value="Unstaffed">Unstaffed</option>
+            <option value="OOS">OOS</option>
+          </select>
+          <div className="ambulance-actions">
+            {ambulanceSaving[st] ? <div className="ambulance-saving">Saving...</div> : <div className="ambulance-saved" />}
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
       </div>
       {/* Members Table */}
       <section className="admin-table-wrapper admin-card" aria-labelledby="members-heading">

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { TopNavBar } from "./components/TopNavBar"
 import { SlidingMessage } from "./components/SlidingMessage"
+import { InfoBar } from "./components/InfoBar"
 import { PageCarousel } from "./components/PageCarousel"
 import { AssignmentEditPage } from "./components/pages/AssignmentEditPage"
 import { AdminPage } from "./components/pages/AdminPage"
@@ -39,6 +40,7 @@ function App() {
           }
         />
       </Routes>
+      <InfoBar text={"Welcome — here is some static information."} />
       <SlidingMessage />
     </BrowserRouter>
   )

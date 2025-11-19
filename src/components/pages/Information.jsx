@@ -19,7 +19,6 @@ const fetchSheet = async (sheetName) => {
       ? data.values.slice(1).map((row) => [row[0], row[1]])
       : []
   }
-  // For DepartmentNews: [news, date, icon]
   return data.values
     ? data.values.slice(1).map((row) => [row[0], row[1], row[2]])
     : []
@@ -45,7 +44,7 @@ export default function Information() {
     fetchAll()
     const id = setInterval(() => {
       if (mounted) fetchAll()
-    }, 15000) // 15s
+    }, 15000)
     return () => {
       mounted = false
       clearInterval(id)
@@ -68,7 +67,6 @@ export default function Information() {
     return "run-stat-other"
   }
 
-  // Helper for icon rendering
   const renderNewsIcon = (iconType) => {
     if (!iconType) return null
     const type = iconType.toLowerCase()

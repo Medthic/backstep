@@ -21,11 +21,13 @@ html, body { height: 100%; }
   border-radius: 1rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   max-width: 1280px; /* widened for dashboard to fit Add Member layout */
-  margin: 2rem auto;
-  padding: 2.25rem;
-  /* force the admin area to the viewport height and prevent page scroll
-    so inner cards (Members) can scroll internally */
-  height: calc(85vh - 5rem); /* reduce overall admin height slightly to avoid feeling too tall */
+  /* reduce outer spacing so the admin area fits inside the viewport
+     and avoids creating a page-level scrollbar */
+  margin: 1rem auto;
+  padding: 1.25rem 1.5rem;
+  /* cap the admin container to the viewport height minus a small offset */
+  height: calc(100vh - 10rem);
+  max-height: calc(100vh - 14rem);
   overflow: hidden;
   color: #fff;
   display: flex;
@@ -94,7 +96,7 @@ html, body { height: 100%; }
 
 .admin-title {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin: 0 0 2rem; /* match .admin-container padding-top for equal top/bottom space */
   font-family: "Carbondale", "BebasNeue", Arial, sans-serif;
   letter-spacing: 2px;
 }
@@ -151,7 +153,7 @@ html, body { height: 100%; }
   .admin-card { display: flex; flex-direction: column; padding: 0.9rem; }
 
   /* default cap for non-top cards so they don't grow unbounded */
-  .admin-card:not(.carousel-card):not(.message-card):not(.add-member-card):not(.admin-table-wrapper) {
+  .admin-card:not(.carousel-card):not(.message-card):not(.add-member-card):not(.admin-table-wrapper):not(.ambulance-card) {
     max-height: 220px;
     overflow: auto;
   }
@@ -159,7 +161,8 @@ html, body { height: 100%; }
   /* Make the three top cards taller so Add Member doesn't scroll and match their heights */
   .admin-card.carousel-card,
   .admin-card.message-card,
-  .admin-card.add-member-card {
+  .admin-card.add-member-card,
+  .admin-card.ambulance-card {
     max-height: none;
     min-height: 240px; /* tall enough to avoid internal scroll */
     overflow: visible;
@@ -293,6 +296,38 @@ html, body { height: 100%; }
   font-size: 1rem;
   color: #fff;
   letter-spacing: 1px;
+}
+
+/* External Ambulances editor styles */
+.ambulance-card { padding: 0.6rem; }
+.ambulance-list {
+  display: flex;
+  flex-direction: row; /* lay out ambulances horizontally */
+  gap: 0.45rem;
+  flex-wrap: wrap; /* allow wrapping instead of internal vertical scroll */
+  align-items: center;
+}
+.ambulance-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.36rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
+  border-radius: 0.45rem;
+  border: 1px solid rgba(255,255,255,0.02);
+  flex: 0 0 auto; /* keep each row compact when wrapping */
+  min-width: 10rem; /* ensure readable width for each control */
+}
+.ambulance-id { min-width: 2.2rem; text-align: center; font-weight: 700; color: #fff; background: rgba(0,0,0,0.12); padding: 0.18rem 0.5rem; border-radius: 0.3rem; }
+.ambulance-select { flex: 1 1 auto; padding: 0.4rem 0.6rem; border-radius: 0.45rem; border: 1px solid #444; background: #111; color: #fff; font-family: "BebasNeue", Arial, sans-serif; letter-spacing: 1px; }
+.ambulance-actions { display: flex; gap: 0.5rem; }
+
+.ambulance-saving { font-size: 0.85rem; color: #9fb3b3; font-family: "BebasNeue", Arial, sans-serif; letter-spacing: 1px; }
+.ambulance-saved { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: rgba(0,0,0,0); }
+
+@media (min-width: 900px) {
+  /* Keep horizontal layout on larger screens as well */
+  .ambulance-list { flex-direction: row; }
 }
 
 .admin-input {

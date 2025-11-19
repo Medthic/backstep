@@ -28,6 +28,14 @@
   }
 }
 
+:root {
+  --sliding-height: 2rem;
+  /* sliding message height */
+  --sliding-height: 2rem;
+  /* set global InfoBar height to 60px */
+  --infobar-height: 50px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   a:nth-of-type(2) .logo {
     animation: logo-spin infinite 20s linear;
@@ -44,5 +52,5 @@
 
 .main-content {
   margin-top: 4rem; /* Height of TopNavBar */
-  padding-bottom: 2.5rem; /* Height of SlidingMessage */
+  padding-bottom: calc(var(--sliding-height) + var(--infobar-height)); /* Reserve space for InfoBar + SlidingMessage */
 }

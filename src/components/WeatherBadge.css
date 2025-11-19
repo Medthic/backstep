@@ -1,0 +1,27 @@
+.nav-weather {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-family: "BebasNeue", Arial, sans-serif;
+  font-weight: 700;
+  /* match date size (2rem) visually by increasing base size */
+  font-size: 2rem;
+  margin-left: 0.6rem;
+}
+.nav-weather__icon { font-size: 2.4rem; line-height: 1 }
+.nav-weather__temp { font-size: 2rem }
+.nav-weather__loc {
+  display: inline-block;
+  font-size: 0.95rem;
+  opacity: 0.55;
+  margin-left: 0.35rem;
+}
+.nav-weather--loading { opacity: 0.6 }
+
+@media (max-width: 768px) {
+  .nav-weather { font-size: 1.6rem; margin-left: 0.3rem }
+  .nav-weather__icon { font-size: 1.8rem }
+  .nav-weather__temp { font-size: 1.6rem }
+  .nav-weather__loc { display: none }
+}

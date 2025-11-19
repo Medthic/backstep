@@ -3,8 +3,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: 2rem;
-  background: #18181b;
+  height: var(--sliding-height);
+  background: #444444;
   z-index: 1999;
   display: flex;
   align-items: center;

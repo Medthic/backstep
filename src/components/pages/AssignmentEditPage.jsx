@@ -1,10 +1,9 @@
 import { useEffect, useState, useMemo } from "react"
 import Select from "react-select"
 import { supabase } from "../../lib/supabase"
-import { rankColors } from "../rankColors"
+import { rankColors, formatRankLabel } from "../rankColors"
 import "./AssignmentEditPage.css"
 
-// Constants
 const APPARATUS = {
   ENGINE_41: {
     name: "Engine 41",
@@ -29,29 +28,21 @@ const AMBULANCES = [47, 48, 49].map((num) => ({
   positions: ["Staff", "Staff"],
 }))
 
-// Components
 const AssignmentSelect = ({ value, onChange, options, isDisabled }) => (
   <Select
     className="member-select"
-    /* Ensure react-select internal classes use this prefix so your CSS selectors like
-       .member-select__menu or .member-select__option will apply even when the menu is portaled */
     classNamePrefix="member-select"
     value={options.find((opt) => opt.value === value) || null}
     onChange={(opt) => onChange(opt?.value || null)}
     options={options}
-    /* Render the menu into document.body to avoid clipping by parent containers */
     menuPortalTarget={typeof document !== "undefined" ? document.body : null}
-    /* Use fixed positioning so the menu overlays the viewport and can appear above or below as needed */
     menuPosition="fixed"
-    /* Let react-select choose the best placement (top or bottom) */
     menuPlacement="auto"
-    /* Prevent automatic scrolling of the page when opening the menu */
     menuShouldScrollIntoView={false}
     isClearable
     isSearchable
     isDisabled={isDisabled}
     styles={{
-      /* Keep only dynamic styles here: per-option background color depends on rank */
       option: (provided, state) => ({
         ...provided,
         backgroundColor: state.data?.color || provided.backgroundColor,
@@ -89,6 +80,7 @@ export const AssignmentEditPage = () => {
   const [assignments, setAssignments] = useState([])
   const [members, setMembers] = useState([])
   const [savingMap, setSavingMap] = useState({})
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,7 +93,6 @@ export const AssignmentEditPage = () => {
     }
     fetchData()
 
-    // Subscribe to realtime assignment updates so UI stays live without full reloads
     let channel = null
     try {
       channel = supabase
@@ -132,7 +123,7 @@ export const AssignmentEditPage = () => {
         )
         .subscribe()
     } catch {
-      // ignore
+      
     }
 
     return () => {
@@ -140,13 +131,51 @@ export const AssignmentEditPage = () => {
     }
   }, [])
 
+  
+
+
   const memberOptions = useMemo(
-    () =>
-      members.map((m) => ({
+    () => {
+      const RANK_ORDER = [
+        "CHIEF",
+        "CHIEFEMT",
+        "CHIEFMEDIC",
+        "CAPTAIN",
+        "CAPTAINEMT",
+        "CAPTAINMEDIC",
+        "LIEUTENANT",
+        "LIEUTENANTEMT",
+        "LIEUTENANTMEDIC",
+        "ENGINEER",
+        "ENGINEEREMT",
+        "ENGINEERMEDIC",
+        "FIREFIGHTER",
+        "FIREFIGHTEREMT",
+        "FIREFIGHTERMEDIC",
+        "GREENSHIELD",
+        "GREENSHIELDEMT",
+        "GREENSHIELDMEDIC",
+        "PARAMEDIC",
+        "AEMT",
+        "EMT",
+        "JUNIOR",
+      ]
+
+      const sorted = [...members].sort((a, b) => {
+        const ia = RANK_ORDER.indexOf(String(a.rank).toUpperCase())
+        const ib = RANK_ORDER.indexOf(String(b.rank).toUpperCase())
+        const ra = ia === -1 ? RANK_ORDER.length : ia
+        const rb = ib === -1 ? RANK_ORDER.length : ib
+        if (ra !== rb) return ra - rb
+        return (a.name || "").localeCompare(b.name || "")
+      })
+
+      return sorted.map((m) => ({
         value: m.id,
-        label: `${m.name} (${m.rank})`,
+        label: `${m.name} — ${formatRankLabel(m.rank)}`,
         color: rankColors[m.rank]?.background || "#fff",
-      })),
+      }))
+    },
     [members]
   )
 
@@ -193,6 +222,7 @@ export const AssignmentEditPage = () => {
 
   return (
     <div className="assignment-edit-page">
+      
       <div className="assignment-grid">
         {/* Main apparatus */}
         {Object.values(APPARATUS).map(({ name, positions }, idx) => (

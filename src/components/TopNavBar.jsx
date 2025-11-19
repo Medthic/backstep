@@ -4,6 +4,7 @@ import "./TopNavBar.css"
 import { Clock } from "./Clock"
 import { NavMenuButton } from "./NavMenuButton"
 import NavDate from "./NavbarDate" // <-- import the date component
+import WeatherBadge from "./WeatherBadge"
 
 export const TopNavBar = () => {
   // menu open state kept but prefixed to avoid unused-var lint error until menu is implemented
@@ -16,6 +17,7 @@ export const TopNavBar = () => {
           <div className="navbar-left">
             <Clock />
             <NavDate />
+            <WeatherBadge />
           </div>
           <NavMenuButton onToggle={_setIsMenuOpen} />
         </div>

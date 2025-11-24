@@ -15,7 +15,7 @@ export const rankColors = {
   FIREFIGHTEREMT: { background: "#375365", color: "#dfddc4" },
   FIREFIGHTERMEDIC: { background: "#375365", color: "#dfddc4" },
   GREENSHIELD: { background: "#6bf178", color: "#222" },
-  GREENSHIELDEMT: { background: "#6bf1f78", color: "#222" },
+  GREENSHIELDEMT: { background: "#6bf178", color: "#222" },
   GREENSHIELDMEDIC: { background: "#6bf178", color: "#222" },
   EMT: { background: "#2eccca", color: "#222" },
   AEMT: { background: "#55a1f7ff", color: "#222" },

@@ -5,29 +5,23 @@ html,
   overflow-x: hidden;
 }
 
-/* Make sure the root document can size children by viewport height */
 html, body { height: 100%; }
 
-/* Quick tunables for the admin login card. Change these at the top to
-   adjust width/offset without hunting through the file. */
 :root {
-  --admin-login-width: 450px;       /* overall card max-width (change this) */
-  --admin-login-form-width: 420px;  /* inner form max-width */
-  --admin-login-offset: 0px;        /* vertical offset for centering (positive moves down) */
+  --admin-login-width: 450px;
+  --admin-login-form-width: 420px;
+  --admin-login-offset: 0px;
 }
 
 .admin-container {
   background: #333;
   border-radius: 1rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-  max-width: 1280px; /* widened for dashboard to fit Add Member layout */
-  /* reduce outer spacing so the admin area fits inside the viewport
-     and avoids creating a page-level scrollbar */
+  max-width: 1650px;
   margin: 1rem auto;
   padding: 1.25rem 1.5rem;
-  /* cap the admin container to the viewport height minus a small offset */
-  height: calc(100vh - 10rem);
-  max-height: calc(100vh - 14rem);
+  height: calc(100vh - 8rem);
+  max-height: calc(100vh - 12.5rem);
   overflow: hidden;
   color: #fff;
   display: flex;
@@ -36,29 +30,20 @@ html, body { height: 100%; }
   font-family: "BebasNeue", Arial, sans-serif;
 }
 
-/* Special layout for the login state: smaller card centered on the page
-   (placed under the site nav and above the scrolling message). */
 .admin-container.admin-login {
-  /* more compact and professional login card */
-  max-width: var(--admin-login-width, 400px);         /* narrower */
-  /* Force an explicit width so max-width doesn't get overridden by other rules */
+  max-width: var(--admin-login-width, 400px);
   width: var(--admin-login-width, 400px);
   min-width: calc(var(--admin-login-form-width, 300px) + 20px);
-  box-sizing: border-box; /* include padding in width calculation */
-  padding: 1rem 1rem;  /* tighter padding */
+  box-sizing: border-box;
+  padding: 1rem 1rem;
   margin: 1.75rem auto;
   border-radius: 0.8rem;
-  /* smaller vertical footprint while still giving breathing room under nav */
-  /* Tweak these two values to control how tall the login card appears */
-  height: calc(25vh - 1rem); /* primary height setting (reduce to make shorter) */
-  min-height: 200px;        /* minimum height to preserve layout on very short viewports */
+  height: calc(25vh - 1rem);
+  min-height: 200px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* center form vertically inside this card */
-  /* Position the login card centered in the viewport. You can tweak
-    --admin-login-offset to move it slightly down if you have a fixed nav.
-    Example: :root { --admin-login-offset: 40px; } */
+  justify-content: center;
   position: fixed;
   left: 50%;
   top: calc(50% + var(--admin-login-offset, 0px));
@@ -70,15 +55,12 @@ html, body { height: 100%; }
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-/* Make the login form take the full width of the compact card */
 .admin-container.admin-login .admin-form {
-  /* Use explicit width so the rendered box matches the variable exactly */
   width: var(--admin-login-form-width, 300px);
   max-width: var(--admin-login-form-width, 300px);
   align-items: center;
 }
 
-/* Slightly smaller input/button inside the compact login card */
 .admin-container.admin-login .admin-input {
   font-size: 0.95rem;
   padding: 0.3rem 0.45rem;
@@ -91,12 +73,11 @@ html, body { height: 100%; }
   border-radius: 0.45rem;
 }
 
-/* Keep the popup and modal behavior unchanged; ensure z-order is above login */
 .admin-container.admin-login .admin-popup { z-index: 2001; }
 
 .admin-title {
   text-align: center;
-  margin: 0 0 2rem; /* match .admin-container padding-top for equal top/bottom space */
+  margin: 0 0 2rem;
   font-family: "Carbondale", "BebasNeue", Arial, sans-serif;
   letter-spacing: 2px;
 }
@@ -108,21 +89,18 @@ html, body { height: 100%; }
   margin-bottom: 0.7rem;
 }
 
-/* Utility: visually hidden */
 .visually-hidden {
   position: absolute !important;
-
-.admin-table-wrapper { margin-top: 2.6rem; }
   clip: rect(1px, 1px, 1px, 1px);
   white-space: nowrap;
 }
 
-/* Grid / Card layout */
+.admin-table-wrapper { margin-top: 0; }
+
 .admin-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
-  align-items: start; /* don't force excessive heights on small screens */
+  align-items: start;
   margin-bottom: 1rem;
 }
 
@@ -130,80 +108,236 @@ html, body { height: 100%; }
   background: #272727;
   border: 1px solid #3a3a3a;
   border-radius: 0.8rem;
-  padding: 0.6rem; /* reduced padding to lower card height */
+  padding: 1rem;
   box-shadow: 0 1px 6px rgba(0,0,0,0.15);
-  overflow: hidden; /* keep cards visually compact */
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .card-title {
-  margin: 0 0 0.75rem 0;
-  font-size: 1.2rem;
+  margin: 0 0 0.6rem 0;
+  font-size: 1.1rem;
   letter-spacing: 2px;
 }
 
 .stack-form { display: flex; flex-direction: column; gap: 0.6rem; }
 .input-label { font-size: 0.85rem; letter-spacing: 1px; opacity: 0.8; }
 
-/* Make forms inside cards stretch so cards align to tallest */
-
-/* Equal-height card behavior only on wide screens to avoid tall cards on small viewports */
 @media (min-width: 1100px) {
-  .admin-grid { align-items: stretch; }
-  /* base flex layout for vertical alignment */
-  .admin-card { display: flex; flex-direction: column; padding: 0.9rem; }
-
-  /* default cap for non-top cards so they don't grow unbounded */
+  .admin-grid {
+    align-items: start;
+    /* Left wide column for members table, two right columns for 4 small cards */
+    /* Widen members table area; fix narrow uniform widths for small cards */
+    grid-template-columns: minmax(700px, 1fr) 240px 240px;
+    /* let each row size to its content; cards control their own min-height */
+    grid-auto-rows: auto;
+    /* add a small vertical gap so Add Member and Members cards aren't flush */
+    row-gap: 0.6rem;
+    column-gap: 1rem;
+  }
+  .admin-card { display: flex; flex-direction: column; padding: 0.75rem; }
   .admin-card:not(.carousel-card):not(.message-card):not(.add-member-card):not(.admin-table-wrapper):not(.ambulance-card) {
     max-height: 220px;
     overflow: auto;
   }
-
-  /* Make the three top cards taller so Add Member doesn't scroll and match their heights */
   .admin-card.carousel-card,
   .admin-card.message-card,
-  .admin-card.add-member-card,
   .admin-card.ambulance-card {
-    max-height: none;
-    min-height: 240px; /* tall enough to avoid internal scroll */
-    overflow: visible;
+    /* Allow small cards to size closer to content so left column can shrink */
+    min-height: 0;
+    max-height: 220px;
+    overflow: auto;
+    padding: 0.6rem;
   }
-
-  /* Make the Members container expand to fill remaining vertical space */
   .admin-table-wrapper.admin-card {
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
-    min-height: 0; /* allow flex child to shrink properly */
+    min-height: 0;
     overflow: hidden;
   }
-
   .admin-table-wrapper .admin-table-container {
     flex: 1 1 auto;
-    overflow: auto; /* table scrolls internally if large */
+    overflow: auto;
   }
-
-  /* cap the Members card height so it doesn't consume the whole admin area
-     and forces a page scroll — this leaves a comfortable header area above */
   .admin-table-wrapper.admin-card {
-    max-height: calc(100vh - 300px);
+    /* Reduce max-height so members list doesn't flow out past parent (reserve room for right-side cards and sliding bar) */
+    max-height: calc(100vh - 420px);
+  }
+  /* Add-member card wide above members table */
+  .admin-card.add-member-card {
+    grid-column: 1;
+    grid-row: 1;
+    max-height: none;
+    min-height: 0; /* allow card to shrink to content height */
+    height: auto;
+    padding: 0.6rem 0.5rem 1rem 0.5rem;
+    margin-bottom: 1rem;
+  }
+  /* Members table directly below */
+  .admin-table-wrapper {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  /* make members card visually tighter top/bottom */
+  .admin-table-wrapper.admin-card {
+    padding: 0.35rem 0.6rem;
+  }
+  /* Small cards occupy right two columns */
+  .admin-card.carousel-card,
+  .admin-card.message-card,
+  .admin-card.ambulance-card {
+    grid-column: span 1;
+    align-self: start;
+    min-height: 0;
+  }
+  /* Right column wrapper will contain the small cards so they don't affect left-column row heights */
+  .admin-right-column {
+    /* Right column wrapper spans the two narrow columns and both rows so
+       it visually occupies the right side. Restoring previous behavior: it
+       may affect grid row sizing but keeps the stacked layout intact. */
+    grid-column: 2 / span 2;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-self: start;
   }
 
-  .admin-card form { flex: 1 1 auto; display: flex; flex-direction: column; }
+  /* Ensure all right-column cards take the full width of the right-column
+     container so Carousel and Message match the Ambulance card width. */
+  .admin-right-column .admin-card {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Allow right-column cards to expand to show content; keep internal scrolling if needed */
+  .admin-card.carousel-card,
+  .admin-card.message-card {
+    max-height: 420px; /* allow more content to be visible */
+    padding: 0.6rem;
+    overflow: auto;
+    align-self: start;
+  }
+  .admin-card.ambulance-card {
+    max-height: 360px;
+    padding: 0.6rem;
+    overflow: auto;
+    align-self: start;
+  }
+
+  /* Keep a small buffer at the bottom of the table for fixed bars, but don't create large empty space */
+  .admin-table-container { padding-top: 0; padding-bottom: 0.6rem; }
+  /* Horizontal add-member form layout */
+  .add-member-form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .add-member-form .form-actions { margin-top: 0; }
+  .add-member-form .form-actions .admin-button { width: auto; padding: 0.55rem 1.2rem; }
+  .add-member-form .field { margin: 0; flex: 1 1 auto; }
+  .add-member-form .name-field { flex: 1 1 55%; }
+  .add-member-form .rank-field { flex: 0 0 240px; }
+  .add-member-form .field label { display: none; }
+  .add-member-form .form-actions { flex: 0 0 auto; }
+  /* Ensure inputs and select have consistent vertical sizing */
+  .add-member-card .admin-input,
+  .add-member-card .member-select {
+    height: 32px;
+    line-height: 1;
+    box-sizing: border-box;
+  }
+  /* Keep generic card forms vertical except the add-member card which is horizontal */
+  .admin-card:not(.add-member-card) form { flex: 1 1 auto; display: flex; flex-direction: column; }
   .admin-card .form-actions { margin-top: 0.5rem; }
 }
 
-/* Add Member form specific layout: stacked by default, two-column on wide screens */
-.add-member-form {
-  display: grid;
-  grid-template-columns: 1fr; /* always stack: Name, Rank, Add */
-  gap: 1rem 0.9rem; /* increase vertical spacing so Rank and Add button are separated */
-  align-items: stretch;
+/* Mobile / default vertical layout for add member */
+@media (max-width: 1099px) {
+  .add-member-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem 0.75rem;
+    align-items: stretch;
+  }
+  .add-member-form .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .add-member-form .form-actions { display: flex; justify-content: stretch; align-items: center; margin-top: 0.1rem; }
+  .add-member-form .form-actions .admin-button { width: 100%; min-width: 0; padding: 0.55rem 0.75rem; }
 }
-.add-member-form .field { display: flex; flex-direction: column; gap: 0.5rem; }
-.add-member-form .form-actions { display: flex; justify-content: stretch; align-items: center; margin-top: 0.25rem; }
-.add-member-form .form-actions .admin-button { width: 100%; min-width: 0; padding: 0.6rem 0.75rem; }
 
-/* Carousel toggles */
+/* Large screen horizontal single-row layout */
+@media (min-width: 1100px) {
+  .add-member-form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0 0.2rem;
+  }
+  .add-member-form .field { margin: 0; flex: 1 1 auto; }
+  .add-member-form .name-field { flex: 1 1 55%; }
+  .add-member-form .rank-field { flex: 0 0 220px; }
+  .add-member-form .field label { display: none; }
+  .add-member-form .form-actions { flex: 0 0 auto; margin: 0; }
+  .add-member-form .form-actions .admin-button { width: auto; padding: 0.5rem 1.1rem; font-size: 1.05rem; }
+  /* Tighter inputs inside the horizontal row */
+  .add-member-card .admin-input { font-size: 1.15rem; padding: 0.32rem 0.5rem; }
+  .add-member-card .member-select { font-size: 1.05rem; }
+  .admin-card.add-member-card { min-height: auto; }
+
+  /* Reduce the title bottom margin for the add-member card so it sits closer to inputs */
+  .admin-card.add-member-card .card-title { margin: 0 0 0.12rem 0; }
+
+  /* Also tighten the Members card title and paddings */
+  .admin-table-wrapper.admin-card { padding: 0.18rem 0.6rem; }
+  .admin-table-wrapper.admin-card .card-title { margin: 0 0 0.12rem 0; }
+
+  /* Reduce table cell padding slightly so table rows are tighter vertically */
+  .admin-table th,
+  .admin-table td {
+    padding: 0.35rem 0.85rem;
+  }
+
+  /* Ensure react-select control inside add-member matches input/button height */
+  .add-member-card .member-select__control {
+    min-height: 32px;
+    height: 32px;
+    box-shadow: none;
+    padding: 0;
+  }
+  .add-member-card .member-select__value-container {
+    height: 32px;
+    padding: 0 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+  .add-member-card .member-select__single-value {
+    margin: 0;
+    line-height: 1;
+  }
+  .add-member-card .member-select__indicators {
+    height: 32px;
+    display: flex;
+    align-items: center;
+  }
+  .add-member-card .member-select__indicator,
+  .add-member-card .member-select__dropdown-indicator,
+  .add-member-card .member-select__clear-indicator {
+    padding: 0 6px;
+  }
+
+/* Make card inner content align consistently */
+.admin-card > * { box-sizing: border-box; }
+
+/* Tidy up table container so it lines up with other cards */
+.admin-table-container { padding: 0; }
+}
+
+/* Removed high-specificity !important override - behavior controlled by
+   the more specific .admin-card:not(.add-member-card) form rule above. */
+
 .carousel-settings {
   display: flex;
   flex-direction: column;
@@ -213,7 +347,7 @@ html, body { height: 100%; }
 
 .carousel-toggle-row {
   display: flex;
-  flex-direction: column; /* stack toggles vertically */
+  flex-direction: column;
   gap: 0.6rem;
   align-items: flex-start;
 }
@@ -228,11 +362,10 @@ html, body { height: 100%; }
 .carousel-toggle-row input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #38b000; /* green accent */
+  accent-color: #38b000;
   cursor: pointer;
 }
 
-/* Custom switch styling for better UX */
 .carousel-toggle {
   display: inline-flex;
   align-items: center;
@@ -242,9 +375,7 @@ html, body { height: 100%; }
 }
 
 .carousel-toggle .carousel-checkbox {
-  /* hide native checkbox but keep it keyboard-focusable */
   position: absolute;
-  /* Inline action button group */
   width: 1px;
   height: 1px;
   padding: 0;
@@ -298,35 +429,141 @@ html, body { height: 100%; }
   letter-spacing: 1px;
 }
 
-/* External Ambulances editor styles */
 .ambulance-card { padding: 0.6rem; }
 .ambulance-list {
-  display: flex;
-  flex-direction: row; /* lay out ambulances horizontally */
+  /* Use a responsive grid so ambulance tiles fit the container width nicely */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 0.45rem;
-  flex-wrap: wrap; /* allow wrapping instead of internal vertical scroll */
-  align-items: center;
+  align-items: start;
 }
 .ambulance-row {
-  display: flex;
+  /* Use grid for internal layout (id | select | actions). Rows will size to the grid column set by the parent. */
+  display: grid;
+  /* allow the middle column to grow but keep original layout behavior */
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  column-gap: 0.4rem;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.36rem;
+  padding: 0.18rem;
   background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
   border-radius: 0.45rem;
   border: 1px solid rgba(255,255,255,0.02);
-  flex: 0 0 auto; /* keep each row compact when wrapping */
-  min-width: 10rem; /* ensure readable width for each control */
+  width: 100%;
+  box-sizing: border-box;
 }
-.ambulance-id { min-width: 2.2rem; text-align: center; font-weight: 700; color: #fff; background: rgba(0,0,0,0.12); padding: 0.18rem 0.5rem; border-radius: 0.3rem; }
-.ambulance-select { flex: 1 1 auto; padding: 0.4rem 0.6rem; border-radius: 0.45rem; border: 1px solid #444; background: #111; color: #fff; font-family: "BebasNeue", Arial, sans-serif; letter-spacing: 1px; }
+.ambulance-id {
+  min-width: 2rem;
+  width: 2.6rem;
+  text-align: center;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0,0,0,0.12);
+  padding: 0.12rem 0.4rem;
+  border-radius: 0.28rem;
+  box-sizing: border-box;
+}
+.ambulance-select {
+  /* root wrapper for react-select; don't add extra padding so control can fill the column */
+  border-radius: 0.45rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+.ambulance-actions {
+  width: 2.2rem;
+  box-sizing: border-box;
+}
 .ambulance-actions { display: flex; gap: 0.5rem; }
+
+/* react-select classnames when using classNamePrefix="ambulance-select" */
+.ambulance-select__control {
+  background: #fff;
+  border: 1px solid #444;
+  min-height: 1.4rem;
+  height: 1.4rem;
+  box-shadow: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.ambulance-select__value-container {
+  height: 1.4rem;
+  padding: 0 0.5rem;
+  display: flex;
+  align-items: center;
+}
+.ambulance-select__single-value {
+  color: #222;
+}
+.ambulance-select__indicators {
+  height: 1.4rem;
+  display: flex;
+  align-items: center;
+}
+.ambulance-select__menu {
+  z-index: 3000;
+}
+
+/* Keep the dropdown menu width/position independent so it doesn't resize layout
+   and ensure each option matches the control height so opening the menu
+   doesn't change surrounding spacing. */
+.ambulance-select {
+  position: relative;
+}
+.ambulance-select__menu {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.ambulance-select__menu-list {
+  padding: 0.1rem 0;
+  box-sizing: border-box;
+  max-height: calc(1.4rem * 8); /* keep menu reasonably tall but bounded */
+}
+.ambulance-select__option {
+  min-height: 1.4rem;
+  line-height: 1.4rem;
+  padding: 0 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Prevent the control from growing when the menu opens */
+.ambulance-select__control {
+  overflow: visible;
+}
+
+/* Ensure dropdown option text is dark (black) for readability and set
+   sensible focused/selected backgrounds for ambulance selects. */
+.ambulance-select__option {
+  color: #222;
+}
+.ambulance-select__option--is-focused {
+  background: #f2f2f2;
+  color: #222;
+}
+.ambulance-select__option--is-selected {
+  background: #e6e6e6;
+  color: #222;
+}
+.ambulance-select__menu-list {
+  color: #222;
+}
+
+@media (min-width: 1100px) {
+  /* On large screens, give the middle column more space so the select appears wider
+     without changing the overall tile layout (still uses the same number of columns). */
+  .ambulance-row {
+    /* keep the middle column flexible but cap its minimum so tiles don't become too wide */
+    grid-template-columns: auto minmax(140px, 1fr) auto;
+  }
+  .ambulance-select__control {
+    min-width: 140px; /* small minimum */
+    max-width: 260px; /* cap maximum width so controls don't become excessively wide */
+  }
+}
 
 .ambulance-saving { font-size: 0.85rem; color: #9fb3b3; font-family: "BebasNeue", Arial, sans-serif; letter-spacing: 1px; }
 .ambulance-saved { width: 0.6rem; height: 0.6rem; border-radius: 50%; background: rgba(0,0,0,0); }
 
 @media (min-width: 900px) {
-  /* Keep horizontal layout on larger screens as well */
   .ambulance-list { flex-direction: row; }
 }
 
@@ -358,7 +595,6 @@ html, body { height: 100%; }
   background: #466b8a;
 }
 
-/* Smaller button variant for tight spaces */
 .admin-button.sm {
   font-size: 1rem;
   padding: 0.35rem 0.55rem;
@@ -372,7 +608,6 @@ html, body { height: 100%; }
   font-family: "BebasNeue", Arial, sans-serif;
 }
 
-/* React-select styles */
 .member-select {
   font-family: "BebasNeue", Arial, sans-serif;
   font-size: 1.1rem;
@@ -393,23 +628,26 @@ html, body { height: 100%; }
   z-index: 10;
 }
 
+/* Ensure member select menus appear above other content and aren't clipped */
+.member-select__menu {
+  z-index: 3000;
+}
+
 .member-select__option {
   font-family: "BebasNeue", Arial, sans-serif;
   font-weight: 600;
   letter-spacing: 2px;
 }
 
-/* Inline action button group: spacing and fallback for older browsers */
 .action-group {
   display: inline-flex;
-  gap: 1.25rem; /* larger gap so buttons don't touch */
+  gap: 1.25rem;
   flex-wrap: wrap;
   align-items: center;
 }
 .action-group > .admin-button { margin: 0; display: inline-block; }
 .action-group > .admin-button + .admin-button { margin-left: 0.75rem; }
 
-/* Stronger selector for table action buttons to guarantee spacing */
 .admin-table .action-group > .admin-button + .admin-button { margin-left: 12px; }
 
 .admin-table-container {
@@ -435,7 +673,6 @@ html, body { height: 100%; }
   text-align: center;
 }
 
-/* Rank badge extracted */
 .rank-badge {
   padding: 2px 8px;
   border-radius: 0.3em;
@@ -448,23 +685,20 @@ html, body { height: 100%; }
   box-shadow: 0 0 0 1px rgba(0,0,0,0.25) inset;
 }
 
-/* Name column left-aligned */
 .admin-table th:first-child,
 .admin-table td:first-child {
-  min-width: 150px;
-  width: 180px;
+  min-width: 110px;
+  width: 130px;
   text-align: left;
 }
 
-/* Rank column */
 .admin-table th:nth-child(2),
 .admin-table td:nth-child(2) {
-  min-width: 220px;
-  width: 260px;
+  min-width: 120px;
+  width: 150px;
   text-align: center;
 }
 
-/* Action column */
 .admin-table th:nth-child(3),
 .admin-table td:nth-child(3) {
   min-width: 90px;
@@ -480,7 +714,6 @@ html, body { height: 100%; }
   letter-spacing: 2px;
 }
 
-/* Soften the corners of the table */
 .admin-table th:first-child {
   border-top-left-radius: 0.7rem;
 }
@@ -507,7 +740,6 @@ html, body { height: 100%; }
   width: 100%;
 }
 
-/* Modal styles */
 .admin-modal-backdrop {
   position: fixed;
   top: 0;
@@ -531,7 +763,6 @@ html, body { height: 100%; }
   font-family: "BebasNeue", Arial, sans-serif;
 }
 
-/* Popup styles */
 .admin-popup {
   position: fixed;
   top: 1.5rem;
@@ -567,35 +798,31 @@ html, body { height: 100%; }
   }
 }
 
-/* Responsive styles for mobile devices */
 @media (max-width: 700px) {
   .admin-container {
     max-width: 100vw;
-    padding: 1rem 0.5rem 3rem 0.5rem; /* Add padding for sliding message */
+    padding: 1rem 0.5rem 3rem 0.5rem;
     border-radius: 0;
-    height: auto; /* Allow container to grow */
-    min-height: calc(100vh - 4rem); /* Fill screen height */
-    overflow-y: auto; /* Enable vertical scroll */
+    height: auto;
+    min-height: calc(100vh - 4rem);
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Mobile adjustments for the login card */
   .admin-container.admin-login {
-    position: fixed; /* Use fixed positioning to overlay */
+    position: fixed;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%); /* Center the element */
+    transform: translate(-50%, -50%);
     width: 90vw;
-    max-width: 400px; /* Max-width for larger mobile screens */
+    max-width: 400px;
     margin: 0;
     padding: 1.5rem;
     height: auto;
     min-height: 0;
   }
 
-  .admin-grid {
-    grid-template-columns: 1fr; /* Stack cards vertically */
-  }
+  .admin-grid { grid-template-columns: 1fr; }
 
   .admin-title {
     font-size: 1.5rem;
@@ -621,12 +848,12 @@ html, body { height: 100%; }
     padding: 0;
     margin: 0;
     width: 100%;
-    overflow-x: auto; /* Allow horizontal scroll for table */
+    overflow-x: auto;
   }
 
   .admin-table {
     font-size: 0.95rem;
-    min-width: 500px; /* Set min-width to force scroll */
+    min-width: 500px;
     width: 100%;
     border-radius: 0.5rem;
   }
@@ -636,7 +863,6 @@ html, body { height: 100%; }
     padding: 0.4rem 0.5rem;
   }
 
-  /* Reduce column widths for mobile */
   .admin-table th:first-child,
   .admin-table td:first-child {
     min-width: 120px;
@@ -651,7 +877,7 @@ html, body { height: 100%; }
 
   .admin-table th:nth-child(3),
   .admin-table td:nth-child(3) {
-    min-width: 130px; /* Wider for edit/delete buttons */
+    min-width: 130px;
     width: 130px;
   }
 
@@ -679,7 +905,6 @@ html, body { height: 100%; }
   }
 }
 
-/* Medium breakpoint adjustments */
 @media (max-width: 900px) and (min-width: 601px) {
   .admin-grid { gap: 0.8rem; }
   .admin-card { padding: 0.85rem; }

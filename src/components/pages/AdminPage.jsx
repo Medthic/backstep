@@ -41,8 +41,17 @@ export const AdminPage = () => {
 
   const EXTERNAL_AMBULANCES = [18, 19, 58, 59, 68, 69]
   const [ambulanceStatuses, setAmbulanceStatuses] = useState({})
-  const [ambulanceSaving, setAmbulanceSaving] = useState({})
   const saveTimers = React.useRef({})
+  const [ambulanceMenuWidths, setAmbulanceMenuWidths] = useState({})
+
+  const ambulanceOptions = [
+    { value: "Medic", label: "Medic", color: "#8e7cc3", textColor: "#333" },
+    { value: "Advanced", label: "Advanced", color: "#55a1f7", textColor: "#333" },
+    { value: "Ambulance", label: "Ambulance", color: "#2eccca", textColor: "#333" },
+    { value: "Unstaffed", label: "Unstaffed", color: "#aaaaaa", textColor: "#333" },
+    { value: "OOS", label: "OOS", color: "#ff7575", textColor: "#333" },
+  ]
+
 
   const rankOptions = Object.keys(rankColors).map((rank) => ({
     value: rank,
@@ -383,84 +392,6 @@ export const AdminPage = () => {
     <div className="admin-container">
       <h1 className="admin-title">Admin Dashboard</h1>
       <div className="admin-grid" aria-live="polite">
-  {/* Carousel Settings Card */}
-  <section className="admin-card carousel-card" aria-labelledby="carousel-heading">
-          <h2 id="carousel-heading" className="card-title">Carousel Pages</h2>
-          <div className="carousel-toggle-row">
-            {Object.keys(defaultCarouselConfig).map((key) => (
-              <label key={key} className="carousel-toggle">
-                <input
-                  type="checkbox"
-                  className="carousel-checkbox"
-                  checked={!!carouselConfig[key]}
-                  aria-checked={!!carouselConfig[key]}
-                  aria-label={`Toggle ${key.replace(/([A-Z])/g, " $1").trim()} page`}
-                  onChange={async (e) => {
-                    const next = { ...carouselConfig, [key]: e.target.checked }
-                    setCarouselConfig(next)
-                    try {
-                      if (carouselRowId) {
-                        const { data, error } = await supabase
-                          .from("carousel_settings")
-                          .update({ config: next, updated_at: new Date().toISOString() })
-                          .eq("id", carouselRowId)
-                          .select()
-                        if (error) throw error
-                        if (!data || (Array.isArray(data) && data.length === 0)) {
-                          console.warn("carousel_settings update returned no rows but update succeeded")
-                        }
-                      } else {
-                        const { data, error } = await supabase
-                          .from("carousel_settings")
-                          .insert([{ config: next }])
-                          .select()
-                        if (error) throw error
-                        if (data && data[0] && data[0].id) {
-                          setCarouselRowId(data[0].id)
-                        } else {
-                          try {
-                            const { data: fetched } = await supabase
-                              .from("carousel_settings")
-                              .select("id")
-                              .limit(1)
-                              .single()
-                            if (fetched?.id) setCarouselRowId(fetched.id)
-                          } catch (_e) {
-                            console.warn("Fallback fetch for carousel_settings id failed", _e)
-                          }
-                        }
-                      }
-                      window.dispatchEvent(new Event("carouselPagesChanged"))
-                      showPopup("Carousel updated", "success", 1500)
-                      void recordAdminAudit("update_carousel", { config: next })
-                    } catch (_err) {
-                      console.error("Failed to save carousel settings", _err)
-                      showPopup("Failed to save", "error", 2000)
-                    }
-                  }}
-                />
-                <span className="carousel-slider" aria-hidden="true" />
-                <span className="carousel-label">{key.replace(/([A-Z])/g, " $1").trim()}</span>
-              </label>
-            ))}
-          </div>
-        </section>
-  {/* Message Update Card */}
-  <section className="admin-card message-card" aria-labelledby="message-heading">
-          <h2 id="message-heading" className="card-title">Scrolling Message</h2>
-          <form onSubmit={handleMessageSubmit} className="stack-form" aria-label="Update scrolling message form">
-            <label htmlFor="scrolling-message" className="input-label">Message</label>
-            <input
-              id="scrolling-message"
-              className="admin-input"
-              type="text"
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Enter new message"
-            />
-            <button type="submit" className="admin-button" aria-label="Update scrolling message">Update</button>
-          </form>
-        </section>
   {/* Add Member Card */}
   <section className="admin-card add-member-card" aria-labelledby="add-member-heading">
           <h2 id="add-member-heading" className="card-title">Add Member</h2>
@@ -520,14 +451,30 @@ export const AdminPage = () => {
                     border: "1px solid #444",
                     fontFamily: '"BebasNeue", Arial, sans-serif',
                     letterSpacing: "2px",
-                    minHeight: "40px",
+                    minHeight: "32px",
+                    height: "32px",
+                  }),
+                  valueContainer: (provided) => ({
+                    ...provided,
+                    height: "32px",
+                    padding: "0 8px",
+                    display: "flex",
+                    alignItems: "center",
+                  }),
+                  indicatorsContainer: (provided) => ({
+                    ...provided,
+                    height: "32px",
+                    alignItems: "center",
                   }),
                   menu: (provided) => ({
                     ...provided,
                     backgroundColor: "#fff",
                     color: "#222",
+                    zIndex: 3000,
                   }),
                 }}
+                menuPosition="fixed"
+                menuPortalTarget={typeof document !== "undefined" ? document.body : null}
               />
             </div>
             <div className="form-actions">
@@ -542,46 +489,9 @@ export const AdminPage = () => {
             </div>
           </form>
         </section>
-  {/* External Ambulances Editor */}
-  <section className="admin-card ambulance-card" aria-labelledby="ambulance-heading">
-    <h2 id="ambulance-heading" className="card-title">External Ambulances</h2>
-    <div className="ambulance-list">
-      {EXTERNAL_AMBULANCES.map((st) => (
-        <div className="ambulance-row" key={st}>
-          <div className="ambulance-id">{st}</div>
-          <select
-            className="ambulance-select"
-            value={ambulanceStatuses[st] ?? ""}
-            onChange={(e) => {
-              const val = e.target.value
-              setAmbulanceStatuses((cur) => ({ ...cur, [st]: val }))
-              // debounce per-station saves (600ms)
-              if (saveTimers.current[st]) clearTimeout(saveTimers.current[st])
-              saveTimers.current[st] = setTimeout(async () => {
-                setAmbulanceSaving((s) => ({ ...s, [st]: true }))
-                await saveAmbulanceStatus(st, val)
-                setAmbulanceSaving((s) => ({ ...s, [st]: false }))
-                delete saveTimers.current[st]
-              }, 600)
-            }}
-            aria-label={`Status for ambulance ${st}`}
-            >
-            <option value="Medic">Medic</option>
-            <option value="Advanced">Advanced</option>
-            <option value="Ambulance">Ambulance</option>
-              <option value="Unstaffed">Unstaffed</option>
-            <option value="OOS">OOS</option>
-          </select>
-          <div className="ambulance-actions">
-            {ambulanceSaving[st] ? <div className="ambulance-saving">Saving...</div> : <div className="ambulance-saved" />}
-          </div>
-        </div>
-      ))}
-    </div>
-  </section>
-      </div>
-      {/* Members Table */}
-      <section className="admin-table-wrapper admin-card" aria-labelledby="members-heading">
+
+        {/* Members Table moved inside grid for layout */}
+        <section className="admin-table-wrapper admin-card" aria-labelledby="members-heading">
         <h2 id="members-heading" className="card-title">Members</h2>
         <div className="admin-table-container">
           <table className="admin-table" aria-label="Members list">
@@ -683,7 +593,186 @@ export const AdminPage = () => {
             </tbody>
           </table>
         </div>
-      </section>
+        </section>
+        {/* Right column stack: carousel, message, ambulances */}
+        <div className="admin-right-column">
+          <section className="admin-card carousel-card" aria-labelledby="carousel-heading">
+            <h2 id="carousel-heading" className="card-title">Carousel Pages</h2>
+            <div className="carousel-toggle-row">
+              {Object.keys(defaultCarouselConfig).map((key) => (
+                <label key={key} className="carousel-toggle">
+                  <input
+                    type="checkbox"
+                    className="carousel-checkbox"
+                    checked={!!carouselConfig[key]}
+                    aria-checked={!!carouselConfig[key]}
+                    aria-label={`Toggle ${key.replace(/([A-Z])/g, " $1").trim()} page`}
+                    onChange={async (e) => {
+                      const next = { ...carouselConfig, [key]: e.target.checked }
+                      setCarouselConfig(next)
+                      try {
+                        if (carouselRowId) {
+                          const { data, error } = await supabase
+                            .from("carousel_settings")
+                            .update({ config: next, updated_at: new Date().toISOString() })
+                            .eq("id", carouselRowId)
+                            .select()
+                          if (error) throw error
+                        } else {
+                          const { data, error } = await supabase
+                            .from("carousel_settings")
+                            .insert([{ config: next }])
+                            .select()
+                          if (error) throw error
+                          if (data && data[0] && data[0].id) setCarouselRowId(data[0].id)
+                        }
+                        window.dispatchEvent(new Event("carouselPagesChanged"))
+                        showPopup("Carousel updated", "success", 1500)
+                        void recordAdminAudit("update_carousel", { config: next })
+                      } catch (_err) {
+                        console.error("Failed to save carousel settings", _err)
+                        showPopup("Failed to save", "error", 2000)
+                      }
+                    }}
+                  />
+                  <span className="carousel-slider" aria-hidden="true" />
+                  <span className="carousel-label">{key.replace(/([A-Z])/g, " $1").trim()}</span>
+                </label>
+              ))}
+            </div>
+          </section>
+
+          <section className="admin-card message-card" aria-labelledby="message-heading">
+            <h2 id="message-heading" className="card-title">Scrolling Message</h2>
+            <form onSubmit={handleMessageSubmit} className="stack-form" aria-label="Update scrolling message form">
+              <label htmlFor="scrolling-message" className="input-label">Message</label>
+              <input
+                id="scrolling-message"
+                className="admin-input"
+                type="text"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Enter new message"
+              />
+              <button type="submit" className="admin-button" aria-label="Update scrolling message">Update</button>
+            </form>
+          </section>
+
+          <section className="admin-card ambulance-card" aria-labelledby="ambulance-heading">
+            <h2 id="ambulance-heading" className="card-title">External Ambulances</h2>
+            <div className="ambulance-list">
+              {EXTERNAL_AMBULANCES.map((st) => (
+                <div className="ambulance-row" key={st}>
+                  <div className="ambulance-id">{st}</div>
+                  <Select
+                    inputId={`ambulance-${st}`}
+                    className="ambulance-select"
+                    classNamePrefix="ambulance-select"
+                    options={ambulanceOptions}
+                    value={ambulanceOptions.find((o) => o.value === (ambulanceStatuses[st] ?? "")) || null}
+                    onChange={(opt) => {
+                      const val = opt ? opt.value : ""
+                      setAmbulanceStatuses((cur) => ({ ...cur, [st]: val }))
+                      if (saveTimers.current[st]) clearTimeout(saveTimers.current[st])
+                      saveTimers.current[st] = setTimeout(async () => {
+                        try {
+                          setPopup({ show: true, message: `Saving status for ${st}...`, type: "info" })
+                        } catch (_e) {
+                          /* ignore */
+                        }
+                        await saveAmbulanceStatus(st, val)
+                        delete saveTimers.current[st]
+                      }, 600)
+                    }}
+                    isSearchable={false}
+                    placeholder=""
+                    menuPortalTarget={typeof document !== "undefined" ? document.body : null}
+                    menuPosition="fixed"
+                    menuPlacement="auto"
+                    onMenuOpen={() => {
+                      try {
+                        const el = typeof document !== "undefined" ? document.getElementById(`ambulance-${st}`) : null
+                        const control = el ? (el.closest && el.closest('.ambulance-select__control')) || el.parentElement : null
+                        const rect = control ? control.getBoundingClientRect() : null
+                        if (rect) setAmbulanceMenuWidths((cur) => ({ ...cur, [st]: `${rect.width}px` }))
+                      } catch (_e) {}
+                    }}
+                    menuWidth={ambulanceMenuWidths[st]}
+                    styles={{
+                      control: (provided, state) => ({
+                        ...provided,
+                        backgroundColor: state.selectProps.value?.color || "#fff",
+                        border: "1px solid #444",
+                        minHeight: "1.4rem",
+                        height: "1.4rem",
+                        boxShadow: "none",
+                      }),
+                      valueContainer: (provided) => ({
+                        ...provided,
+                        height: "1.4rem",
+                        padding: "0 0.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                      }),
+                      indicatorsContainer: (provided) => ({
+                        ...provided,
+                        height: "1.4rem",
+                        display: "flex",
+                        alignItems: "center",
+                      }),
+                      singleValue: (provided, state) => ({
+                        ...provided,
+                        color: state.data?.textColor || "#222",
+                        backgroundColor: "transparent",
+                        padding: 0,
+                        borderRadius: 0,
+                        fontFamily: '"BebasNeue", Arial, sans-serif',
+                        fontWeight: 700,
+                        letterSpacing: "2px",
+                      }),
+                      option: (provided, state) => ({
+                        ...provided,
+                        minHeight: "1.4rem",
+                        lineHeight: "1.4rem",
+                        padding: "0 0.5rem",
+                        color: state.data?.textColor || state.selectProps.value?.textColor || "#222",
+                        backgroundColor: state.data?.color || "transparent",
+                        fontFamily: '"BebasNeue", Arial, sans-serif',
+                        fontWeight: 700,
+                        letterSpacing: "2px",
+                      }),
+                      menuList: (provided) => ({
+                        ...provided,
+                        padding: "0.1rem 0",
+                        boxSizing: "border-box",
+                        maxHeight: "calc(1.4rem * 8)",
+                        backgroundColor: "transparent",
+                        color: "inherit",
+                      }),
+                      menu: (provided, state) => {
+                        const w = state.selectProps.menuWidth || provided.width
+                        return {
+                          ...provided,
+                          zIndex: 3000,
+                          width: w,
+                          minWidth: "0",
+                          boxSizing: "border-box",
+                          backgroundColor: provided.backgroundColor,
+                          color: provided.color,
+                        }
+                      },
+                    }}
+                    aria-label={`Status for ambulance ${st}`}
+                  />
+                  <div className="ambulance-actions">
+                    <div className="ambulance-saved" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
       {showDeleteConfirm && (
         <div className="admin-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="delete-heading">
           <div className="admin-modal">

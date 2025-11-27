@@ -129,12 +129,12 @@
 }
 
 .member-selection-box.unassigned {
-  background: #222;
-  color: #888;
-  border: 1.5px solid #888;
+  background: #262626; /* slightly lighter for better contrast */
+  color: #e6e6e6; /* higher-contrast text for readability */
+  border: 1px solid #555; /* slightly darker border to frame the box */
   /* Use same font and alignment as assigned */
   font-size: 1rem;
-  font-weight: 300;
+  font-weight: 400; /* stronger weight improves legibility */
   line-height: 1.2;
   min-height: 2.2rem; /* Match assigned box */
   display: flex;

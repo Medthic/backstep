@@ -138,7 +138,7 @@ export const AssignmentPage = () => {
                         <span className="member-rank">{formatRankLabel(member.rank)}</span>
                       </span>
                     ) : (
-                      <span>Unassigned</span>
+                      <span>-</span>
                     )}
                   </div>
                 </div>
@@ -190,7 +190,7 @@ export const AssignmentPage = () => {
                           <span className="member-rank">{formatRankLabel(member.rank)}</span>
                         </span>
                       ) : (
-                        <span>Unassigned</span>
+                        <span>-</span>
                       )}
                     </div>
                   </div>

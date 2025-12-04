@@ -20,7 +20,7 @@ html, body { height: 100%; }
   max-width: 1650px;
   margin: 1rem auto;
   padding: 1.25rem 1.5rem;
-  height: calc(100vh - 8rem);
+  height: calc(100vh - 9rem);
   max-height: calc(100vh - 12.5rem);
   overflow: hidden;
   color: #fff;

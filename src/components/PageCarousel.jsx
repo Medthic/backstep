@@ -3,19 +3,17 @@ import { supabase } from "../lib/supabase";
 import { AssignmentPage } from "./pages/AssignmentPage";
 import { CalanderPage } from "./pages/CalanderPage";
 import Information from "./pages/Information";
-import { GoogleSlidePage } from "./pages/GoogleSlidePage";
+import GoogleSlidePage from "./pages/GoogleSlidePage";
 import "./PageCarousel.css";
 
 // Define pages with stable keys so admin can toggle them
-// Replace SLIDE_EMBED_URL with the embed src you get from
-// Google Slides -> File -> Publish to the web -> Embed (or share/embed URL)
-const SLIDE_EMBED_URL = "" // e.g. "https://docs.google.com/presentation/d/e/<ID>/embed?start=false&loop=false&delayms=3000"
-
+// Using API-based GoogleSlidePage - debugging authorization issue
+// See docs/GOOGLE_SLIDES_SETUP.md for setup instructions
 const allPages = [
   { key: "assignment", node: <AssignmentPage key="assignment" /> },
   { key: "calendar", node: <CalanderPage key="calendar" /> },
   { key: "information", node: <Information key="information" /> },
-  { key: "slide", node: <GoogleSlidePage key="slide" src={SLIDE_EMBED_URL} /> },
+  { key: "slide", node: <GoogleSlidePage key="slide" /> },
 ];
 
 export const PageCarousel = () => {

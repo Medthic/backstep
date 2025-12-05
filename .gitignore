@@ -26,3 +26,7 @@ dist-ssr
 # Local environment files
 .env
 .env.local
+
+# Google Cloud service account credentials
+*-service-account.json
+google-credentials.json

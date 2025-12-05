@@ -160,57 +160,22 @@ function GoogleSlidePage({ title = 'Station Information' }) {
 			width: '100%', 
 			height: '100%',
 			position: 'relative',
-			backgroundColor: '#000'
+			backgroundColor: 'transparent'
 		}}>
 			{/* Current Slide */}
 			<img
 				src={currentSlide.imageUrl}
-				alt={`Slide ${currentSlide.pageNumber}`}
+				alt={`Slide`}
 				style={{
 					width: '100%',
 					height: '100%',
 					objectFit: 'contain',
-					display: 'block'
+					display: 'block',
+					backgroundColor: 'transparent'
 				}}
 			/>
 
-			{/* Slide Counter */}
-			<div style={{
-				position: 'absolute',
-				bottom: '1rem',
-				right: '1rem',
-				backgroundColor: 'rgba(0, 0, 0, 0.7)',
-				color: '#fff',
-				padding: '0.5rem 1rem',
-				borderRadius: '0.5rem',
-				fontSize: '0.9rem',
-				fontFamily: 'monospace'
-			}}>
-				{currentSlide.pageNumber} / {slides.length}
-			</div>
-
-			{/* Navigation Dots */}
-			<div style={{
-				position: 'absolute',
-				bottom: '1rem',
-				left: '50%',
-				transform: 'translateX(-50%)',
-				display: 'flex',
-				gap: '0.5rem'
-			}}>
-				{slides.map((_, index) => (
-					<div
-						key={index}
-						style={{
-							width: '0.5rem',
-							height: '0.5rem',
-							borderRadius: '50%',
-							backgroundColor: index === currentSlideIndex ? '#fff' : 'rgba(255, 255, 255, 0.3)',
-							transition: 'all 0.3s ease'
-						}}
-					/>
-				))}
-			</div>
+			{/* Navigation dots removed to keep slides clean */}
 		</div>
 	);
 }
